@@ -67,6 +67,12 @@ public abstract class AbstractResponseWriterBot extends Bot {
         return response;
     }
 
+    protected boolean isMyTurn(){
+        IsMyTurnResponse response = service.isMyTurn(FACTORY.createIsMyTurnRequest());
+        logToSystemOut(response, response.getClass());
+        return response.isIsYourTurn();
+    }
+
     public static void setTestMode(boolean testMode) {
         TEST_MODE = testMode;
     }
