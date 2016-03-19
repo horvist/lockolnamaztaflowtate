@@ -4,6 +4,7 @@ import com.loxon.javachallenge.modules2015.bot.core.Bot;
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.CommonResp;
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.StartGameRequest;
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.StartGameResponse;
+import com.loxon.javachallenge.modules2016.bot.enums.Actions;
 import com.loxon.javachallenge.modules2016.bot.xmlwrite.AbstractResponseWriterBot;
 
 /**
@@ -39,8 +40,9 @@ public class HardBot extends AbstractResponseWriterBot {
      * example login method()
      */
     protected void login() {
-        StartGameResponse response = service.startGame(new StartGameRequest());
+        StartGameResponse response = startGame();
         CommonResp commonResponse = response.getResult();
+        getActionCost(Actions.AVAILABLEACTIONPOINTS);
         System.out.println(commonResponse.getCode()+" - "+commonResponse.getMessage());
         //... etc.
     }
