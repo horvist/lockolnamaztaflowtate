@@ -13,6 +13,8 @@ public class HardBot extends AbstractLogicBot {
     private int 					  counter = 0;
     
     private WsCoordinate coords;
+    private int unitNumber;
+    
 
     public HardBot(String name, String password, String endpointAddress) {
         super(name, password, endpointAddress);
