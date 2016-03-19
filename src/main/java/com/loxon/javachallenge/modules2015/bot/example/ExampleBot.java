@@ -47,7 +47,7 @@ public class ExampleBot extends Bot {
     }
     
     public static void main(String[] args) {
-    	new ExampleBot("jcteam1", "jcteam1", "http://localhost:8080/engine/CentralControl?wsdl");    	
+    	new ExampleBot(args[1], args[2], args[0]);    	
     }
     
 }
