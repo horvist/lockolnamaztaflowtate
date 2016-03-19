@@ -23,6 +23,10 @@ public abstract class AbstractResponseWriterBot extends Bot {
 
     private boolean costsAreAvailable = false;
 
+    private static int actualUnit = -1;
+
+    protected int expLeft = -1;
+
     public AbstractResponseWriterBot(String name, String password, String endpointAddress) {
         super(name, password, endpointAddress);
 }
@@ -33,7 +37,6 @@ public abstract class AbstractResponseWriterBot extends Bot {
     protected StartGameResponse startGame(){
         StartGameResponse response = service.startGame(FACTORY.createStartGameRequest());
         logToSystemOut(response, response.getClass());
-        initActionCosts();
         return response;
     }
 
@@ -69,6 +72,15 @@ public abstract class AbstractResponseWriterBot extends Bot {
         }
     }
 
+    /**
+     * example login method()
+     */
+    protected void login() {
+        StartGameResponse response = startGame();
+//        CommonResp commonResponse = response.getResult();
+        initActionCosts();
+    }
+
     protected int getAvailableActionPoints(){
         return this.numberOfActionPoints;
     }
@@ -86,11 +98,25 @@ public abstract class AbstractResponseWriterBot extends Bot {
     protected boolean isMyTurn(){
         IsMyTurnResponse response = service.isMyTurn(FACTORY.createIsMyTurnRequest());
         logToSystemOut(response, response.getClass());
+        handleCommonResponse(response.getResult());
+
         return response.isIsYourTurn();
+    }
+
+    public static int getActualUnit() {
+        return actualUnit;
     }
 
     public static void setTestMode(boolean testMode) {
         TEST_MODE = testMode;
+    }
+
+    private void handleCommonResponse(final CommonResp commonResp){
+        actualUnit = commonResp.getBuilderUnit();
+        this.apLeft = commonResp.getActionPointsLeft();
+        this.expLeft = commonResp.getExplosivesLeft();
+
+        // TODO amikor a mi korunk van, letárolni az a korhoz az informaciokat
     }
 
     private void logToSystemOut(Object message, Class clz) {
