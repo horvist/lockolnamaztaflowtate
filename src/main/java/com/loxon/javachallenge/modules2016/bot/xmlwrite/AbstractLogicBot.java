@@ -12,7 +12,7 @@ import java.io.PrintStream;
 /**
  * @author kalmarr
  */
-public abstract class AbstractResponseWriterBot extends Bot {
+public abstract class AbstractLogicBot extends Bot {
 
     // change this to redirect output if desired
     private static PrintStream out = System.out;
@@ -27,7 +27,7 @@ public abstract class AbstractResponseWriterBot extends Bot {
 
     protected int expLeft = -1;
 
-    public AbstractResponseWriterBot(String name, String password, String endpointAddress) {
+    public AbstractLogicBot(String name, String password, String endpointAddress) {
         super(name, password, endpointAddress);
 }
 

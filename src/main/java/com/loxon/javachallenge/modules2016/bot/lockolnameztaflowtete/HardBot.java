@@ -1,15 +1,18 @@
 package com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete;
 
-import com.loxon.javachallenge.modules2016.bot.xmlwrite.AbstractResponseWriterBot;
+import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.WsCoordinate;
+import com.loxon.javachallenge.modules2016.bot.xmlwrite.AbstractLogicBot;
 
 /**
  * @author kalmarr
  */
-public class HardBot extends AbstractResponseWriterBot {
+public class HardBot extends AbstractLogicBot {
 
     protected Boolean         connectedToGame = false;
     protected static final long TIME_INTERVAL = 1000L;
     private int 					  counter = 0;
+    
+    private WsCoordinate coords;
 
     public HardBot(String name, String password, String endpointAddress) {
         super(name, password, endpointAddress);
