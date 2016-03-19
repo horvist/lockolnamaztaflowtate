@@ -8,7 +8,5 @@ public enum Actions {
     MOVE,
     RADAR,
     EXPLODE,
-    WATCH,
-    AVAILABLEACTIONPOINTS,
-    AVAILABLEEXPLOSIVES;
+    WATCH;
 }

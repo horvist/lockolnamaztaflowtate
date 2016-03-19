@@ -21,7 +21,7 @@ public abstract class AbstractResponseWriterBot extends Bot {
 
     private static boolean TEST_MODE = false;
 
-    private ActionCostResponse actions = null;
+    private boolean costsAreAvailable = false;
 
     public AbstractResponseWriterBot(String name, String password, String endpointAddress) {
         super(name, password, endpointAddress);
@@ -33,32 +33,48 @@ public abstract class AbstractResponseWriterBot extends Bot {
     protected StartGameResponse startGame(){
         StartGameResponse response = service.startGame(FACTORY.createStartGameRequest());
         logToSystemOut(response, response.getClass());
+        initActionCosts();
         return response;
     }
 
-    protected int getActionCost(Actions actionType){
-        if(actions == null) {
+    protected void initActionCosts(){
+        if(!costsAreAvailable) {
             ActionCostResponse response = service.getActionCost(FACTORY.createActionCostRequest());
             logToSystemOut(response, response.getClass());
+            costsAreAvailable = true;
+            this.costDrill = response.getDrill();
+            this.costMove = response.getMove();
+            this.costRadar = response.getRadar();
+            this.costExplode = response.getExplode();
+            this.costWatch = response.getWatch();
+            this.numberOfActionPoints = response.getAvailableActionPoints();
+            this.numberOfExplosives = response.getAvailableExplosives();
         }
+    }
+
+    protected int getActionCost(Actions actionType){
         switch (actionType){
             case DRILL:
-                return actions.getDrill();
+                return this.costDrill;
             case MOVE:
-                return actions.getMove();
+                return this.costMove;
             case RADAR:
-                return actions.getRadar();
+                return this.costRadar;
             case EXPLODE:
-                return actions.getRadar();
+                return this.costExplode;
             case WATCH:
-                return actions.getWatch();
-            case AVAILABLEACTIONPOINTS:
-                return actions.getAvailableActionPoints();
-            case AVAILABLEEXPLOSIVES:
-                return actions.getAvailableExplosives();
+                return this.costWatch;
             default:
                 return 1000000000;
         }
+    }
+
+    protected int getAvailableActionPoints(){
+        return this.numberOfActionPoints;
+    }
+
+    protected int getAvailableExplosives(){
+        return this.numberOfExplosives;
     }
 
     protected ExplodeCellResponse getExplodeCellRequest(){
