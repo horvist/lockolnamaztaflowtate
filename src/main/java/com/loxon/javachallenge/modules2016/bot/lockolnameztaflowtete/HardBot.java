@@ -1,8 +1,6 @@
 package com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete;
 
-import com.loxon.javachallenge.modules2015.bot.core.Bot;
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.CommonResp;
-import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.StartGameRequest;
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.StartGameResponse;
 import com.loxon.javachallenge.modules2016.bot.enums.Actions;
 import com.loxon.javachallenge.modules2016.bot.xmlwrite.AbstractResponseWriterBot;
