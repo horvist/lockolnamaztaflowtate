@@ -142,9 +142,8 @@ public abstract class AbstractLogicBot extends Bot {
 
         final IMapCache map = Factory.getMap();
         boolean success = true;
-        boolean lock = false;
         try {
-            if (timeHelper.isInTime() && (lock = map.lockField(targetCoordinate))) {
+            if (timeHelper.isInTime()) {
                 CommonResp commonResp;
                 boolean isStructuring = false;
                 switch (actionType) {
@@ -173,16 +172,11 @@ public abstract class AbstractLogicBot extends Bot {
                         map.structureField(targetCoordinate);
                     }
                 }
-
-                map.unLockField(targetCoordinate);
             } else {
                 success = false;
             }
         } catch (Exception e) {
             success = false;
-            if (lock) {
-                map.unLockField(targetCoordinate);
-            }
         }
 
         return success;
