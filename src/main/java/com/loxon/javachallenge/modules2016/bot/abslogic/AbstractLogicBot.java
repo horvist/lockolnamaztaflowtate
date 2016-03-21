@@ -12,7 +12,6 @@ import javax.xml.bind.Marshaller;
 import java.io.PrintStream;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 /**
  * @author kalmarr
@@ -24,13 +23,9 @@ public abstract class AbstractLogicBot extends Bot {
 
     private static final ObjectFactory FACTORY = new ObjectFactory();
 
-    private ITimeHelper timeHelper = Factory.createTimeHelper();
+    protected ITimeHelper timeHelper = Factory.createTimeHelper();
 
     protected WsCoordinate coords;
-
-    private static volatile boolean INIT_SHUTTLE = false;
-
-    private static volatile boolean INIT_MAP = false;
 
     private static boolean TEST_MODE = false;
 
@@ -79,30 +74,13 @@ public abstract class AbstractLogicBot extends Bot {
     }
 
     private synchronized void initMap(final WsCoordinate size) {
-        if (!INIT_MAP) {
             IMapCache map = Factory.getMap();
             map.initMap(size);
-            INIT_MAP = true;
-        }
     }
 
     private synchronized void initShuttleAndExitPos() {
-        if (!INIT_SHUTTLE) {
             IMapCache map = Factory.getMap();
             boolean success = false;
-            while (!success) {
-                GetSpaceShuttlePosResponse response = service.getSpaceShuttlePos(FACTORY.createGetSpaceShuttlePosRequest());
-                CommonResp commonResp = response.getResult();
-                if (success(commonResp)) {
-                    map.placeShuttle(response.getCord());
-                    handleCommonResponse(commonResp);
-                    success = true;
-                }
-                logToSystemOut(response, response.getClass());
-            }
-
-
-            success = false;
             while (!success) {
                 GetSpaceShuttleExitPosResponse response = service.getSpaceShuttleExitPos(FACTORY.createGetSpaceShuttleExitPosRequest());
                 CommonResp commonResp = response.getResult();
@@ -113,9 +91,6 @@ public abstract class AbstractLogicBot extends Bot {
                 }
                 logToSystemOut(response, response.getClass());
             }
-            // initilaze for shuttle informations has finished
-            INIT_SHUTTLE = true;
-        }
     }
 
     protected int getActionCost(Actions actionType) {
@@ -189,11 +164,12 @@ public abstract class AbstractLogicBot extends Bot {
             initMap(response.getSize());
             initShuttleAndExitPos(); // init shuttle positions
             initActionCosts(); // init cost informations
+            Factory.getMap().placeShuttle(response.getUnits().get(0).getCord());
         }
     }
 
-    protected Collection<Scouting> doRadar(final Collection<WsCoordinate> coordinates) {
-        if (this.apLeft < getActionCost(Actions.RADAR) * coordinates.size()) {
+    protected Collection<Scouting> doRadar(final Collection<WsCoordinate> coordinates) throws Exception {
+        if (this.apLeft < getActionCost(Actions.RADAR) * coordinates.size() && !timeHelper.isInTime()) {
             return Collections.EMPTY_LIST;
         }
 
@@ -212,8 +188,8 @@ public abstract class AbstractLogicBot extends Bot {
         return Collections.EMPTY_LIST;
     }
 
-    protected Collection<Scouting> doWatch() {
-        if (this.apLeft < getActionCost(Actions.WATCH)) {
+    protected Collection<Scouting> doWatch() throws Exception {
+        if (this.apLeft < getActionCost(Actions.WATCH) && !timeHelper.isInTime()) {
             return Collections.EMPTY_LIST;
         }
 
@@ -232,7 +208,7 @@ public abstract class AbstractLogicBot extends Bot {
     }
 
     private CommonResp doExplode(WsCoordinate targetCoordinate) throws Exception {
-        if (this.expLeft == 0) {
+        if (this.expLeft == 0 && !timeHelper.isInTime()) {
             throw new Exception("Run out of exp.");
         }
 
@@ -279,6 +255,7 @@ public abstract class AbstractLogicBot extends Bot {
         CommonResp commonResp = response.getResult();
         if (success(commonResp)) {
             handleCommonResponse(response.getResult());
+            this.coords = Factory.getMap().getUnitPosition(this.unitNumber);
             return response.isIsYourTurn();
         }
         logToSystemOut(response, response.getClass());

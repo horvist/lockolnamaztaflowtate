@@ -18,10 +18,6 @@ public interface IMapCache {
 	
 	public void moveUnit(Bot bot, WsCoordinate coord);
 	
-	public boolean lockField(WsCoordinate coord);	//sync
-	
-	public boolean unLockField(WsCoordinate coord);
-	
 	public void structureField(WsCoordinate coord);
 
 	public WsDirection getDirection(WsCoordinate actual, WsCoordinate target);
@@ -29,4 +25,5 @@ public interface IMapCache {
 	// this will handle watch and radar result
 	public void handleScouts(Collection<Scouting> scoutings);
 
+	public WsCoordinate getUnitPosition(final int i);
 }

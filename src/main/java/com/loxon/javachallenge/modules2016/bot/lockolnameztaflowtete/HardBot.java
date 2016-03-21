@@ -7,10 +7,10 @@ import com.loxon.javachallenge.modules2016.bot.abslogic.AbstractLogicBot;
  */
 public class HardBot extends AbstractLogicBot {
 
-    protected Boolean         connectedToGame = false;
-    protected static final long TIME_INTERVAL = 1000L;
-    private int 					  counter = 0;
-    
+    protected Boolean connectedToGame = false;
+    protected static final long TIME_INTERVAL = 145L;
+    private int counter = 0;
+
 
     public HardBot(String name, String password, String endpointAddress) {
         super(name, password, endpointAddress);
@@ -24,22 +24,38 @@ public class HardBot extends AbstractLogicBot {
 
     @Override
     protected void process() throws InterruptedException {
-        if(!connectedToGame) {
+        if (!connectedToGame) {
             this.login();
             connectedToGame = true;
         }
-        this.doSomething();
-        Thread.sleep(TIME_INTERVAL);
+
+        while (true) {
+            try {
+                if (isMyTurn()) {
+                    this.timeHelper.setStartTime();
+
+                    this.doSomething();
+
+                } else {
+                    Thread.sleep(TIME_INTERVAL);
+                }
+            } catch (Exception e){
+                Thread.sleep(TIME_INTERVAL);
+            }
+        }
     }
 
+    private void doSomething() throws Exception {
+        while (true) {
 
-    private void doSomething() {
-        System.out.println("do something "+counter++);
+            doWatch();
+
+        }
     }
 
     public static void main(String[] args) {
         HardBot hardBot = new HardBot(args[1], args[2], args[0]);
-        if(args.length > 3){
+        if (args.length > 3) {
             hardBot.setTestMode(true);
         }
 
