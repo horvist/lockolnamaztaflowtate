@@ -22,11 +22,11 @@ public interface IMapCache {
 
 	public void markShuttleExit(WsCoordinate coord);
 	
-	public void moveUnit(AbstractLogicBot bot, WsCoordinate coord) throws IllegalStateException;
+	public void moveUnit(AbstractLogicBot bot, WsCoordinate coord) throws Exception;
 	
 	public void structureField(WsCoordinate coord);
 
-	public WsDirection getDirection(WsCoordinate actual, WsCoordinate target) throws IllegalStateException;
+	public WsDirection getDirection(WsCoordinate actual, WsCoordinate target) throws Exception;
 
 	// this will handle watch and radar result
 	public void handleScouts(Collection<Scouting> scoutings);

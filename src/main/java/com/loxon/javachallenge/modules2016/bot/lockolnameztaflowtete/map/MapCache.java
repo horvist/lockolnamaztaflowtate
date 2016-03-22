@@ -66,7 +66,7 @@ public class MapCache implements IMapCache {
 	}
 
 	@Override
-	public void moveUnit(AbstractLogicBot bot, WsCoordinate coord) throws IllegalStateException {
+	public void moveUnit(AbstractLogicBot bot, WsCoordinate coord) throws Exception {
 		final int unit = bot.getUnitNumber();
 		final WsCoordinate currentCoords = unitCoords[unit];
 		final Field currentField = getMappedFieldForCoords(coord);
@@ -89,12 +89,18 @@ public class MapCache implements IMapCache {
 
 	@Override
 	public void structureField(WsCoordinate coord) {
-		// TODO Auto-generated method stub
-		
+		final Field mappedField = getMappedFieldForCoords(coord);
+		if (mappedField.getObjectType() == ObjectType.GRANITE) {
+			mappedField.setObjectType(ObjectType.ROCK);
+		} else if (mappedField.getObjectType() == ObjectType.ROCK) {
+			mappedField.setObjectType(ObjectType.TUNNEL);
+		} else {
+			throw new IllegalStateException(getCoordErrorMessage("Can not structure field: " + mappedField.getObjectType().name", coord, null));
+		}
 	}
 
 	@Override
-	public WsDirection getDirection(WsCoordinate actual, WsCoordinate target) throws IllegalStateException {
+	public WsDirection getDirection(WsCoordinate actual, WsCoordinate target) throws Exception {
 		final Field mappedTargetField = getMappedFieldForCoords(target);
 		if (mappedTargetField.getTeam() != FieldTeam.NO_MANS_LAND) {
 			throw new IllegalStateException(getCoordErrorMessage("The target field is not empty, somebody is standing on it!", target, null));
