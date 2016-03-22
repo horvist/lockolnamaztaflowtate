@@ -8,6 +8,9 @@ import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.WsCoordinate;
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.WsDirection;
 import com.loxon.javachallenge.modules2016.bot.abslogic.AbstractLogicBot;
 import com.loxon.javachallenge.modules2016.bot.enums.FieldTeam;
+import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.InvalidDirectionException;
+import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.InvalidMoveCommandException;
+import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.StructureFieldException;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.time.ITimeHelper;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.time.TimeHelper;
 
@@ -21,6 +24,8 @@ import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.time.TimeHe
 public class MapCache implements IMapCache {
 	
 	private static final int NUM_OF_UNITS = 4;
+	
+	private static final String TEAM_NAME = "lockolnameztaflowtete";
 	
 	private Field[][] map;
 	
@@ -66,52 +71,58 @@ public class MapCache implements IMapCache {
 	}
 
 	@Override
-	public void moveUnit(AbstractLogicBot bot, WsCoordinate coord) throws Exception {
-		final int unit = bot.getUnitNumber();
-		final WsCoordinate currentCoords = unitCoords[unit];
-		final Field currentField = getMappedFieldForCoords(coord);
-		if (currentField.getObjectType() != ObjectType.SHUTTLE) {
-			// shuttle should not be set to other type
+	public void moveUnit(AbstractLogicBot bot, WsCoordinate coord) throws InvalidMoveCommandException {
+		try {
+			final int unit = bot.getUnitNumber();
+			final WsCoordinate currentCoords = unitCoords[unit];
+			final Field currentField = getMappedFieldForCoords(coord);
+			if (currentField.getObjectType() != ObjectType.SHUTTLE) {
+				// shuttle should not be set to other type
+				
+				getMappedFieldForCoords(currentCoords)
+					.setObjectType(ObjectType.TUNNEL)
+					.setTeam(FieldTeam.NO_MANS_LAND);	// may throw array out of bounds exception
+			}
 			
-			getMappedFieldForCoords(currentCoords)
-				.setObjectType(ObjectType.TUNNEL)
-				.setTeam(FieldTeam.NO_MANS_LAND);	// may throw array out of bounds exception
+			getMappedFieldForCoords(coord)
+			.setObjectType(ObjectType.BUILDER_UNIT)
+			.setTeam(FieldTeam.ALLY);	// may throw array out of bounds exception
+			
+			unitCoords[unit] = coord;
+		} catch (Exception e) {
+			throw new InvalidMoveCommandException(e);
 		}
-		
-		getMappedFieldForCoords(coord)
-		.setObjectType(ObjectType.BUILDER_UNIT)
-		.setTeam(FieldTeam.ALLY);	// may throw array out of bounds exception
-		
-		unitCoords[unit] = coord;
 		
 		// TODO elég ennyi?
 	}
 
 	@Override
-	public void structureField(WsCoordinate coord) throws Exception {
+	public void structureField(WsCoordinate coord) throws StructureFieldException {
 		final Field mappedField = getMappedFieldForCoords(coord);
 		if (mappedField.getObjectType() == ObjectType.GRANITE) {
 			mappedField.setObjectType(ObjectType.ROCK);
 		} else if (mappedField.getObjectType() == ObjectType.ROCK) {
-			mappedField.setObjectType(ObjectType.TUNNEL);
+			mappedField
+				.setObjectType(ObjectType.TUNNEL)
+				.setTeam(FieldTeam.ALLY);
 		} else {
-			throw new IllegalStateException(getCoordErrorMessage("Can not structure field: " + mappedField.getObjectType().name(), coord, null));
+			throw new StructureFieldException(getCoordErrorMessage("Can not structure field: " + mappedField.getObjectType().name(), coord, null));
 		}
 	}
 
 	@Override
-	public WsDirection getDirection(WsCoordinate actual, WsCoordinate target) throws Exception {
+	public WsDirection getDirection(WsCoordinate actual, WsCoordinate target) throws InvalidDirectionException {
 		final Field mappedTargetField = getMappedFieldForCoords(target);
 		if (mappedTargetField.getTeam() != FieldTeam.NO_MANS_LAND) {
-			throw new IllegalStateException(getCoordErrorMessage("The target field is not empty, somebody is standing on it!", target, null));
+			throw new InvalidDirectionException(getCoordErrorMessage("The target field is not empty, somebody is standing on it!", target, null));
 		}
 		if (coordEquals(actual, shuttleCoord) && !coordEquals(target, shuttleExit)) {
-			throw new IllegalStateException(getCoordErrorMessage("Unit is in starting point, target can only be the shuttle exit point!", target, actual));
+			throw new InvalidDirectionException(getCoordErrorMessage("Unit is in starting point, target can only be the shuttle exit point!", target, actual));
 		}
 		if (isInMap(target)) {
 			if (actual.getX() != target.getX()
 					&& actual.getY() != target.getY()) {
-				throw new IllegalStateException(getCoordErrorMessage("Unit can only go up/down/left/right", target, actual));
+				throw new InvalidDirectionException(getCoordErrorMessage("Unit can only go up/down/left/right", target, actual));
 			} else {
 				int xDiff = actual.getX() - target.getX();
 				int yDiff = actual.getY() - target.getY();
@@ -130,10 +141,10 @@ public class MapCache implements IMapCache {
 						return WsDirection.UP;
 				}
 				
-				throw new IllegalStateException(getCoordErrorMessage("Unit can only move one square at a time ", target, actual));
+				throw new InvalidDirectionException(getCoordErrorMessage("Unit can only move one square at a time ", target, actual));
 			}
 		} else {
-			throw new IllegalStateException(getCoordErrorMessage("Target position is not in bounds of map ", target, actual));
+			throw new InvalidDirectionException(getCoordErrorMessage("Target position is not in bounds of map ", target, actual));
 		}
 	}
 	
@@ -152,8 +163,17 @@ public class MapCache implements IMapCache {
 
 	@Override
 	public void handleScouts(Collection<Scouting> scoutings) {
-		// TODO Auto-generated method stub
-		
+		for (Scouting scouting : scoutings) {
+			final Field field = getMappedFieldForCoords(scouting.getCord());
+			field.setObjectType(scouting.getObject());
+			if (field.getObjectType() == ObjectType.BUILDER_UNIT
+					|| field.getObjectType() == ObjectType.SHUTTLE
+					|| field.getObjectType() == ObjectType.TUNNEL) {
+				field.setTeam(TEAM_NAME.equals(scouting.getTeam()) ? FieldTeam.ALLY : FieldTeam.ENEMY);
+			} else {
+				field.setTeam(FieldTeam.NO_MANS_LAND);
+			}
+		}
 	}
 
 	@Override
@@ -177,6 +197,7 @@ public class MapCache implements IMapCache {
 		Field field = map[coord.getX()][coord.getY()];
 		if (field == null) {
 			field = new Field();
+			map[coord.getX()][coord.getY()] = field;
 		}
 		
 		return field;
@@ -184,6 +205,18 @@ public class MapCache implements IMapCache {
 	
 	private boolean coordEquals(WsCoordinate coord1, WsCoordinate coord2) {
 		return coord1 == coord2 || (coord1.getX() == coord2.getX() && coord1.getY() == coord2.getY());
+	}
+
+	@Override
+	public void revertChanges() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void commitChanges() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

@@ -6,6 +6,9 @@ import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.Scouting;
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.WsCoordinate;
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.WsDirection;
 import com.loxon.javachallenge.modules2016.bot.abslogic.AbstractLogicBot;
+import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.InvalidDirectionException;
+import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.InvalidMoveCommandException;
+import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.StructureFieldException;
 
 /**
  * IMapCache interface. (Such comment, much wow)
@@ -22,11 +25,11 @@ public interface IMapCache {
 
 	public void markShuttleExit(WsCoordinate coord);
 	
-	public void moveUnit(AbstractLogicBot bot, WsCoordinate coord) throws Exception;
+	public void moveUnit(AbstractLogicBot bot, WsCoordinate coord) throws InvalidMoveCommandException;
 	
-	public void structureField(WsCoordinate coord) throws Exception;
+	public void structureField(WsCoordinate coord) throws StructureFieldException;
 
-	public WsDirection getDirection(WsCoordinate actual, WsCoordinate target) throws Exception;
+	public WsDirection getDirection(WsCoordinate actual, WsCoordinate target) throws InvalidDirectionException;
 
 	// this will handle watch and radar result
 	public void handleScouts(Collection<Scouting> scoutings);
@@ -34,4 +37,8 @@ public interface IMapCache {
 	public WsCoordinate getUnitPosition(final int unit);
 	
 	public boolean isInStartPos(final int unit);
+	
+	public void revertChanges();
+	
+	public void commitChanges();
 }

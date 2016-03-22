@@ -3,6 +3,7 @@ package com.loxon.javachallenge.modules2016.bot.abslogic;
 import com.loxon.javachallenge.modules2015.bot.core.Bot;
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.*;
 import com.loxon.javachallenge.modules2016.bot.enums.Actions;
+import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.InvalidDirectionException;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.RunOutOfTimeException;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.IMapCache;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.time.ITimeHelper;
@@ -220,7 +221,7 @@ public abstract class AbstractLogicBot extends Bot {
         return response.getResult();
     }
 
-    private CommonResp doMove(WsCoordinate targetCoordinate) throws IllegalStateException {
+    private CommonResp doMove(WsCoordinate targetCoordinate) throws InvalidDirectionException {
         MoveBuilderUnitRequest request = FACTORY.createMoveBuilderUnitRequest();
         request.setDirection(this.mapCache.getDirection(this.coords, targetCoordinate));
         request.setUnit(this.unitNumber);
@@ -231,7 +232,7 @@ public abstract class AbstractLogicBot extends Bot {
         return response.getResult();
     }
 
-    private CommonResp doDrill(WsCoordinate targetCoordinate) throws IllegalStateException {
+    private CommonResp doDrill(WsCoordinate targetCoordinate) throws InvalidDirectionException {
         StructureTunnelRequest request = FACTORY.createStructureTunnelRequest();
         request.setDirection(this.mapCache.getDirection(this.coords, targetCoordinate));
         request.setUnit(this.unitNumber);
