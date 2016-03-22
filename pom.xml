@@ -33,9 +33,14 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
                     <archive>
-                        <manifest>
-                            <mainClass>com.loxon.javachallenge.modules2015.bot.example.ExampleBot</mainClass>
-                        </manifest>
+                      <manifest>
+		                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+		                <addClasspath>true</addClasspath>
+		                <mainClass>com.loxon.javachallenge.modules2015.bot.example.ExampleBot</mainClass>
+		              </manifest>
+		              <manifestEntries>
+		                <Class-Path>d:/dev/JavaChallenge/target/test-bot-core.jar</Class-Path>
+		              </manifestEntries>
                     </archive>
                 </configuration>
             </plugin>		

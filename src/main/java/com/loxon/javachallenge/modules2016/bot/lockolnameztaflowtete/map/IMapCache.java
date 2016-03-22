@@ -7,6 +7,12 @@ import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.WsDirection;
 
 import java.util.Collection;
 
+/**
+ * IMapCache interface. (Such comment, much wow)
+ * 
+ * @author ihorvath
+ *
+ */
 public interface IMapCache {
 
 	// coord x = size x, coord y = size y
@@ -25,5 +31,7 @@ public interface IMapCache {
 	// this will handle watch and radar result
 	public void handleScouts(Collection<Scouting> scoutings);
 
-	public WsCoordinate getUnitPosition(final int i);
+	public WsCoordinate getUnitPosition(final int unit);
+	
+	public boolean isInStartPos(final int unit);
 }

@@ -8,6 +8,8 @@
 	~mezõk lokkolása és unlokkolása szinkronizált metódussal (akkor is lokkolt egy terület, ha áll rajta valaki).
 	~térkép ojjektumokat tartalmazó 2d tömb, ojjektumnak van egy föld típusa, tárolja hogy esetlegesen ki áll rajta, valamint hogy lokkolva van-e a mezõ.
 	~kell még metódus arra is, hogy lebontsunk egy mezõt kisebb típusúra (gránit-kristály-tunnel). 
+	~throws exception-öket beírni mindenhová
+	~isInStartPos a unitoknak
 - startGame hívásakor térkép és csökkenõ attribútumok inicializálása
 - getSpaceShuttlePos rögtön startGame után lekérni és letárolni. Ide tárolni kezdetben a 4 unit helyét is.
 - getSpaceShuttleExitPos ezt is le kell tárolni, elsõnek csak erre léphetnek a unitok. Egybõl alagutat kell benne ásni.
