@@ -3,10 +3,9 @@ package com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions
 /**
  * @author kalmarr
  */
-public class RunOutOfActionPointsException extends EndOfTurnException {
+public class EndOfTurnException extends Exception {
 
-    public RunOutOfActionPointsException(String msg){
+    public EndOfTurnException(String msg){
         super(msg);
     }
-
 }

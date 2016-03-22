@@ -12,7 +12,6 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import java.io.PrintStream;
 import java.util.Collection;
-import java.util.Collections;
 
 /**
  * @author kalmarr
@@ -44,16 +43,6 @@ public abstract class AbstractLogicBot extends Bot {
 
     @Override
     protected abstract void process() throws InterruptedException;
-
-    protected StartGameResponse startGame() {
-        StartGameResponse response = service.startGame(FACTORY.createStartGameRequest());
-        CommonResp commonResponse = response.getResult();
-        if (success(commonResponse)) {
-            handleCommonResponse(commonResponse);
-        }
-        logToSystemOut(response, response.getClass());
-        return response;
-    }
 
     private void initActionCosts() {
         boolean success = false;
@@ -142,13 +131,19 @@ public abstract class AbstractLogicBot extends Bot {
     }
 
     protected void login() {
-        StartGameResponse response = startGame();
-        CommonResp commonResp = response.getResult();
-        if (success(commonResp)) {
-            this.mapCache.initMap(response.getSize());
-            initShuttleAndExitPos(); // init shuttle positions
-            initActionCosts(); // init cost informations
-            this.mapCache.placeShuttle(response.getUnits().get(0).getCord());
+        boolean success = false;
+        while(!success) {
+            StartGameResponse response = service.startGame(FACTORY.createStartGameRequest());
+            CommonResp commonResponse = response.getResult();
+            if (success(commonResponse)) {
+                handleCommonResponse(commonResponse);
+                this.mapCache.initMap(response.getSize());
+                initShuttleAndExitPos(); // init shuttle positions
+                initActionCosts(); // init cost informations
+                this.mapCache.placeShuttle(response.getUnits().get(0).getCord());
+                success = true;
+            }
+            logToSystemOut(response, response.getClass());
         }
     }
 
@@ -248,11 +243,11 @@ public abstract class AbstractLogicBot extends Bot {
     protected boolean isMyTurn() {
         IsMyTurnResponse response = service.isMyTurn(FACTORY.createIsMyTurnRequest());
         CommonResp commonResp = response.getResult();
-        if (success(commonResp)) {
+        if (success(commonResp) && response.isIsYourTurn()) {
             handleCommonResponse(response.getResult());
             this.coords = this.mapCache.getUnitPosition(this.unitNumber);
             logToSystemOut(response, response.getClass());
-            return response.isIsYourTurn();
+            return true;
         }
         return false;
     }

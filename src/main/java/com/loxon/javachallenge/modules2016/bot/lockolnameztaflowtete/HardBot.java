@@ -1,10 +1,12 @@
 package com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete;
 
+import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.ObjectType;
 import com.loxon.javachallenge.modules2016.bot.abslogic.AbstractLogicBot;
 import com.loxon.javachallenge.modules2016.bot.enums.Actions;
+import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.EndOfTurnException;
+import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.RunOutOfActionPointsException;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.RunOutOfTimeException;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.IMapCache;
-import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.MapCache;
 
 /**
  * @author kalmarr
@@ -43,10 +45,10 @@ public class HardBot extends AbstractLogicBot {
                 } else {
                     Thread.sleep(TIME_INTERVAL);
                 }
-            } catch (RunOutOfTimeException e){
+            } catch (EndOfTurnException e){
                 continue;
             } catch (Exception e){
-                Thread.sleep(TIME_INTERVAL);
+//                Thread.sleep(TIME_INTERVAL);
             }
         }
     }
@@ -54,6 +56,9 @@ public class HardBot extends AbstractLogicBot {
     private void doSomething() throws Exception {
         while (true) {
             if(!escaped[this.getUnitNumber()]){
+                if(ObjectType.ROCK.equals(this.mapCache.getField(this.mapCache.getShuttleExit()).getObjectType())){
+                    doAction(Actions.DRILL, mapCache.getShuttleExit());
+                }
                 doAction(Actions.MOVE, mapCache.getShuttleExit());
                 escaped[this.getUnitNumber()] = true;
             }
