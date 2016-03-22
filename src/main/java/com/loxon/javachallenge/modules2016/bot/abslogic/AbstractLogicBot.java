@@ -85,8 +85,8 @@ public abstract class AbstractLogicBot extends Bot {
                 this.mapCache.markShuttleExit(response.getCord());
                 handleCommonResponse(commonResp);
                 success = true;
+                logToSystemOut(response, response.getClass());
             }
-            logToSystemOut(response, response.getClass());
         }
     }
 
@@ -251,9 +251,9 @@ public abstract class AbstractLogicBot extends Bot {
         if (success(commonResp)) {
             handleCommonResponse(response.getResult());
             this.coords = this.mapCache.getUnitPosition(this.unitNumber);
+            logToSystemOut(response, response.getClass());
             return response.isIsYourTurn();
         }
-        logToSystemOut(response, response.getClass());
         return false;
     }
 
