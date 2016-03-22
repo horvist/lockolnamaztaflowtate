@@ -32,13 +32,9 @@
                 <configuration>
                     <archive>
                       <manifest>
-		                <!--addDefaultImplementationEntries>true</addDefaultImplementationEntries-->
 		                <addClasspath>true</addClasspath>
 		                <mainClass>com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.HardBot</mainClass>
 		              </manifest>
-		              <!--manifestEntries>
-		                <Class-Path>d:/dev/JavaChallenge/target/test-bot-core.jar</Class-Path>
-		              </manifestEntries-->
                     </archive>
                 </configuration>
             </plugin>		
