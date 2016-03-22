@@ -4,8 +4,6 @@ import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.ObjectType;
 import com.loxon.javachallenge.modules2016.bot.abslogic.AbstractLogicBot;
 import com.loxon.javachallenge.modules2016.bot.enums.Actions;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.EndOfTurnException;
-import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.RunOutOfActionPointsException;
-import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.RunOutOfTimeException;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.IMapCache;
 
 /**

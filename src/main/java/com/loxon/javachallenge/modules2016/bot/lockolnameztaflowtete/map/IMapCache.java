@@ -5,7 +5,6 @@ import java.util.Collection;
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.Scouting;
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.WsCoordinate;
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.WsDirection;
-import com.loxon.javachallenge.modules2016.bot.abslogic.AbstractLogicBot;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.InvalidDirectionException;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.InvalidMoveCommandException;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.StructureFieldException;
