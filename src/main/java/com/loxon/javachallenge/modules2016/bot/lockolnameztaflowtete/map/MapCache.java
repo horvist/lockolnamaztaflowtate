@@ -88,14 +88,14 @@ public class MapCache implements IMapCache {
 	}
 
 	@Override
-	public void structureField(WsCoordinate coord) {
+	public void structureField(WsCoordinate coord) throws Exception {
 		final Field mappedField = getMappedFieldForCoords(coord);
 		if (mappedField.getObjectType() == ObjectType.GRANITE) {
 			mappedField.setObjectType(ObjectType.ROCK);
 		} else if (mappedField.getObjectType() == ObjectType.ROCK) {
 			mappedField.setObjectType(ObjectType.TUNNEL);
 		} else {
-			throw new IllegalStateException(getCoordErrorMessage("Can not structure field: " + mappedField.getObjectType().name", coord, null));
+			throw new IllegalStateException(getCoordErrorMessage("Can not structure field: " + mappedField.getObjectType().name(), coord, null));
 		}
 	}
 

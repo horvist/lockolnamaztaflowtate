@@ -24,7 +24,7 @@ public interface IMapCache {
 	
 	public void moveUnit(AbstractLogicBot bot, WsCoordinate coord) throws Exception;
 	
-	public void structureField(WsCoordinate coord);
+	public void structureField(WsCoordinate coord) throws Exception;
 
 	public WsDirection getDirection(WsCoordinate actual, WsCoordinate target) throws Exception;
 
