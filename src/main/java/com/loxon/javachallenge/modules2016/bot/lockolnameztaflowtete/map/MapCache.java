@@ -243,10 +243,14 @@ public class MapCache implements IMapCache {
 	}
 	
 	private Field getMappedFieldForCoords(WsCoordinate coord) {
-		Field field = map[coord.getX()][coord.getY()];
+		return getMappedFieldForCoords(coord.getX(), coord.getY());
+	}
+	
+	private Field getMappedFieldForCoords(int x, int y) {
+		Field field = map[x][y];
 		if (field == null) {
 			field = new Field();
-			map[coord.getX()][coord.getY()] = field;
+			map[x][y] = field;
 		}
 		
 		return field;
@@ -283,5 +287,16 @@ public class MapCache implements IMapCache {
 
 	public WsCoordinate getShuttleExit() {
 		return shuttleExit;
+	}
+	
+	public String toString() {
+		StringBuilder ret = new StringBuilder();
+		for (int i = 0; i < originalMapSize.getX(); i++) {
+			for (int j = 0; j < originalMapSize.getY(); j++) {
+				ret.append(getMappedFieldForCoords(i, j).toString()).append("|");
+			}
+		}
+		
+		return ret.toString();
 	}
 }

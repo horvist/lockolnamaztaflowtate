@@ -42,5 +42,21 @@ public class Field {
 		return newField;
 	}
 	
+	public String toString() {
+		String ret = "";
+		if (objectType == null) {
+			ret += "_";
+		} else {
+			ret += objectType.name().substring(0, 1);
+		}
+		if (team == null) {
+			ret += "_";
+		} else {
+			ret += team.name().substring(0, 1);
+		}
+		
+		return ret;
+	}
+	
 	
 }
