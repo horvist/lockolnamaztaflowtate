@@ -1,7 +1,10 @@
 package com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete;
 
 import com.loxon.javachallenge.modules2016.bot.abslogic.AbstractLogicBot;
+import com.loxon.javachallenge.modules2016.bot.enums.Actions;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.RunOutOfTimeException;
+import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.IMapCache;
+import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.MapCache;
 
 /**
  * @author kalmarr
@@ -10,8 +13,8 @@ public class HardBot extends AbstractLogicBot {
 
     protected Boolean connectedToGame = false;
     protected static final long TIME_INTERVAL = 145L;
-    private int counter = 0;
 
+    private boolean[] escaped = new boolean[IMapCache.NUM_OF_UNITS];
 
     public HardBot(String name, String password, String endpointAddress) {
         super(name, password, endpointAddress);
@@ -50,6 +53,10 @@ public class HardBot extends AbstractLogicBot {
 
     private void doSomething() throws Exception {
         while (true) {
+            if(!escaped[this.getUnitNumber()]){
+                doAction(Actions.MOVE, mapCache.getShuttleExit());
+                escaped[this.getUnitNumber()] = true;
+            }
 
             doWatch();
 

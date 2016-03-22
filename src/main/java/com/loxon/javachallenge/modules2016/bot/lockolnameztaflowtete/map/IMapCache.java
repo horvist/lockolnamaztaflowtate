@@ -18,6 +18,8 @@ import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.
  */
 public interface IMapCache {
 
+	public static final int NUM_OF_UNITS = 4;
+
 	// coord x = size x, coord y = size y
 	public void initMap(WsCoordinate coord);
 	
@@ -41,4 +43,8 @@ public interface IMapCache {
 	public void revertChanges();
 	
 	public void commitChanges();
+
+	public WsCoordinate getShuttleCoord();
+
+	public WsCoordinate getShuttleExit();
 }

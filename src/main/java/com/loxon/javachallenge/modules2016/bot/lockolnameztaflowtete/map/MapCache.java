@@ -23,8 +23,6 @@ import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.
  */
 public class MapCache implements IMapCache {
 	
-	private static final int NUM_OF_UNITS = 4;
-	
 	private static final String TEAM_NAME = "lockolnameztaflowtete";
 	
 	private Field[][] map;
@@ -279,4 +277,11 @@ public class MapCache implements IMapCache {
 		uncommittedChanges.clear();
 	}
 
+	public WsCoordinate getShuttleCoord() {
+		return shuttleCoord;
+	}
+
+	public WsCoordinate getShuttleExit() {
+		return shuttleExit;
+	}
 }
