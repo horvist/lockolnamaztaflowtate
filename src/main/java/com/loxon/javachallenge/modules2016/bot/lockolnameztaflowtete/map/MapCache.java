@@ -8,6 +8,8 @@ import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.WsCoordinate;
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.WsDirection;
 import com.loxon.javachallenge.modules2016.bot.abslogic.AbstractLogicBot;
 import com.loxon.javachallenge.modules2016.bot.enums.FieldTeam;
+import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.time.ITimeHelper;
+import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.time.TimeHelper;
 
 /**
  * Utility class for caching map fields and providing
@@ -26,6 +28,19 @@ public class MapCache implements IMapCache {
 	private WsCoordinate shuttleCoord;
 	private WsCoordinate originalMapSize;
 	private WsCoordinate shuttleExit;
+	
+    private static IMapCache instance = null;
+
+	
+    private MapCache(){
+    }
+
+    public static IMapCache getInstance() {
+        if(instance == null) {
+            instance = new MapCache();
+        }
+        return instance;
+    }
 
 	@Override
 	public void initMap(WsCoordinate coord) {
