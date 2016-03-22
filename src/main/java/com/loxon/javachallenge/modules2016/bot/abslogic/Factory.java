@@ -16,7 +16,7 @@ public final class Factory {
         return TimeHelper.getInstance();
     }
 
-    public static IMapCache getMap(){
+    public static IMapCache createMap(){
         return MapCache.getInstance();
     }
 }

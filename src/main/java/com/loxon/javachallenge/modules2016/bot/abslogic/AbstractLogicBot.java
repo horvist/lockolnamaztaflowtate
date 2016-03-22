@@ -3,6 +3,7 @@ package com.loxon.javachallenge.modules2016.bot.abslogic;
 import com.loxon.javachallenge.modules2015.bot.core.Bot;
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.*;
 import com.loxon.javachallenge.modules2016.bot.enums.Actions;
+import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.RunOutOfTimeException;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.IMapCache;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.time.ITimeHelper;
 
@@ -24,6 +25,8 @@ public abstract class AbstractLogicBot extends Bot {
     private static final ObjectFactory FACTORY = new ObjectFactory();
 
     protected ITimeHelper timeHelper = Factory.createTimeHelper();
+
+    protected IMapCache mapCache = Factory.createMap();
 
     protected WsCoordinate coords;
 
@@ -73,19 +76,13 @@ public abstract class AbstractLogicBot extends Bot {
         }
     }
 
-    private synchronized void initMap(final WsCoordinate size) {
-            IMapCache map = Factory.getMap();
-            map.initMap(size);
-    }
-
     private synchronized void initShuttleAndExitPos() {
-            IMapCache map = Factory.getMap();
             boolean success = false;
             while (!success) {
                 GetSpaceShuttleExitPosResponse response = service.getSpaceShuttleExitPos(FACTORY.createGetSpaceShuttleExitPosRequest());
                 CommonResp commonResp = response.getResult();
                 if (success(commonResp)) {
-                    map.markShuttleExit(response.getCord());
+                    this.mapCache.markShuttleExit(response.getCord());
                     handleCommonResponse(commonResp);
                     success = true;
                 }
@@ -115,7 +112,6 @@ public abstract class AbstractLogicBot extends Bot {
             return false;
         }
 
-        final IMapCache map = Factory.getMap();
         boolean success = true;
         try {
             if (timeHelper.isInTime()) {
@@ -138,17 +134,17 @@ public abstract class AbstractLogicBot extends Bot {
                 }
                 if (commonResp != null) {
                     if (!success(commonResp)) {
-                        throw new Exception();
+                        throw new Exception(); //TODO revert map changes
                     }
 
                     handleCommonResponse(commonResp);
 
                     if (isStructuring) {
-                        map.structureField(targetCoordinate);
+                        this.mapCache.structureField(targetCoordinate);
                     }
                 }
             } else {
-                success = false;
+                throw new RunOutOfTimeException("DoAction");
             }
         } catch (Exception e) {
             success = false;
@@ -161,10 +157,10 @@ public abstract class AbstractLogicBot extends Bot {
         StartGameResponse response = startGame();
         CommonResp commonResp = response.getResult();
         if (success(commonResp)) {
-            initMap(response.getSize());
+            this.mapCache.initMap(response.getSize());
             initShuttleAndExitPos(); // init shuttle positions
             initActionCosts(); // init cost informations
-            Factory.getMap().placeShuttle(response.getUnits().get(0).getCord());
+            this.mapCache.placeShuttle(response.getUnits().get(0).getCord());
         }
     }
 
@@ -208,14 +204,14 @@ public abstract class AbstractLogicBot extends Bot {
     }
 
     private CommonResp doExplode(WsCoordinate targetCoordinate) throws Exception {
-        if (this.expLeft == 0 && !timeHelper.isInTime()) {
+        if (this.expLeft == 0) {
             throw new Exception("Run out of exp.");
         }
 
-        IMapCache map = Factory.getMap();
+        this.mapCache.structureField(targetCoordinate);
 
         ExplodeCellRequest explodeCellRequest = FACTORY.createExplodeCellRequest();
-        explodeCellRequest.setDirection(map.getDirection(this.coords, targetCoordinate));
+        explodeCellRequest.setDirection(this.mapCache.getDirection(this.coords, targetCoordinate));
         explodeCellRequest.setUnit(this.unitNumber);
         ExplodeCellResponse response = service.explodeCell(explodeCellRequest);
 
@@ -224,11 +220,9 @@ public abstract class AbstractLogicBot extends Bot {
         return response.getResult();
     }
 
-    private CommonResp doMove(WsCoordinate targetCoordinate) {
-        IMapCache map = Factory.getMap();
-
+    private CommonResp doMove(WsCoordinate targetCoordinate) throws IllegalStateException {
         MoveBuilderUnitRequest request = FACTORY.createMoveBuilderUnitRequest();
-        request.setDirection(map.getDirection(this.coords, targetCoordinate));
+        request.setDirection(this.mapCache.getDirection(this.coords, targetCoordinate));
         request.setUnit(this.unitNumber);
         MoveBuilderUnitResponse response = service.moveBuilderUnit(request);
 
@@ -237,11 +231,9 @@ public abstract class AbstractLogicBot extends Bot {
         return response.getResult();
     }
 
-    private CommonResp doDrill(WsCoordinate targetCoordinate) {
-        IMapCache map = Factory.getMap();
-
+    private CommonResp doDrill(WsCoordinate targetCoordinate) throws IllegalStateException {
         StructureTunnelRequest request = FACTORY.createStructureTunnelRequest();
-        request.setDirection(map.getDirection(this.coords, targetCoordinate));
+        request.setDirection(this.mapCache.getDirection(this.coords, targetCoordinate));
         request.setUnit(this.unitNumber);
         StructureTunnelResponse response = service.structureTunnel(request);
 
@@ -255,7 +247,7 @@ public abstract class AbstractLogicBot extends Bot {
         CommonResp commonResp = response.getResult();
         if (success(commonResp)) {
             handleCommonResponse(response.getResult());
-            this.coords = Factory.getMap().getUnitPosition(this.unitNumber);
+            this.coords = this.mapCache.getUnitPosition(this.unitNumber);
             return response.isIsYourTurn();
         }
         logToSystemOut(response, response.getClass());

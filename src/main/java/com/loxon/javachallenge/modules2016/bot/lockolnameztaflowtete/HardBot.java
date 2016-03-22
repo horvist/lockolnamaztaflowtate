@@ -1,6 +1,7 @@
 package com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete;
 
 import com.loxon.javachallenge.modules2016.bot.abslogic.AbstractLogicBot;
+import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.RunOutOfTimeException;
 
 /**
  * @author kalmarr
@@ -39,6 +40,8 @@ public class HardBot extends AbstractLogicBot {
                 } else {
                     Thread.sleep(TIME_INTERVAL);
                 }
+            } catch (RunOutOfTimeException e){
+                continue;
             } catch (Exception e){
                 Thread.sleep(TIME_INTERVAL);
             }
