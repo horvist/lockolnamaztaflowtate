@@ -299,4 +299,9 @@ public class MapCache implements IMapCache {
 		
 		return ret.toString();
 	}
+
+	@Override
+	public Field getField(WsCoordinate coord) {
+		return getMappedFieldForCoords(coord);
+	}
 }

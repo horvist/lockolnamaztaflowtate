@@ -47,4 +47,6 @@ public interface IMapCache {
 	public WsCoordinate getShuttleCoord();
 
 	public WsCoordinate getShuttleExit();
+	
+	public Field getField(WsCoordinate coord);
 }
