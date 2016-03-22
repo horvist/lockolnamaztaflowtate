@@ -3,8 +3,7 @@ package com.loxon.javachallenge.modules2016.bot.abslogic;
 import com.loxon.javachallenge.modules2015.bot.core.Bot;
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.*;
 import com.loxon.javachallenge.modules2016.bot.enums.Actions;
-import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.InvalidDirectionException;
-import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.RunOutOfTimeException;
+import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.*;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.IMapCache;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.time.ITimeHelper;
 
@@ -78,17 +77,17 @@ public abstract class AbstractLogicBot extends Bot {
     }
 
     private synchronized void initShuttleAndExitPos() {
-            boolean success = false;
-            while (!success) {
-                GetSpaceShuttleExitPosResponse response = service.getSpaceShuttleExitPos(FACTORY.createGetSpaceShuttleExitPosRequest());
-                CommonResp commonResp = response.getResult();
-                if (success(commonResp)) {
-                    this.mapCache.markShuttleExit(response.getCord());
-                    handleCommonResponse(commonResp);
-                    success = true;
-                }
-                logToSystemOut(response, response.getClass());
+        boolean success = false;
+        while (!success) {
+            GetSpaceShuttleExitPosResponse response = service.getSpaceShuttleExitPos(FACTORY.createGetSpaceShuttleExitPosRequest());
+            CommonResp commonResp = response.getResult();
+            if (success(commonResp)) {
+                this.mapCache.markShuttleExit(response.getCord());
+                handleCommonResponse(commonResp);
+                success = true;
             }
+            logToSystemOut(response, response.getClass());
+        }
     }
 
     protected int getActionCost(Actions actionType) {
@@ -108,50 +107,38 @@ public abstract class AbstractLogicBot extends Bot {
         }
     }
 
-    protected boolean doAction(final Actions actionType, final WsCoordinate targetCoordinate) {
+    protected void doAction(final Actions actionType, final WsCoordinate targetCoordinate) throws Exception {
         if (this.apLeft < getActionCost(actionType)) {
-            return false;
+            throw new RunOutOfActionPointsException(actionType.name());
         }
 
-        boolean success = true;
         try {
-            if (timeHelper.isInTime()) {
-                CommonResp commonResp;
-                boolean isStructuring = false;
-                switch (actionType) {
-                    case DRILL:
-                        isStructuring = true;
-                        commonResp = doDrill(targetCoordinate);
-                        break;
-                    case EXPLODE:
-                        isStructuring = true;
-                        commonResp = doExplode(targetCoordinate);
-                        break;
-                    case MOVE:
-                        commonResp = doMove(targetCoordinate);
-                        break;
-                    default:
-                        return false;
+            CommonResp commonResp = null;
+            switch (actionType) {
+                case DRILL:
+                    commonResp = doDrill(targetCoordinate);
+                    break;
+                case EXPLODE:
+                    commonResp = doExplode(targetCoordinate);
+                    break;
+                case MOVE:
+                    commonResp = doMove(targetCoordinate);
+                    break;
+                default:
+                    throw new Exception("Invalid action.");
+            }
+            if (commonResp != null) {
+                if (!success(commonResp)) {
+                    throw new UnSuccessfulRequestException(actionType.name());
                 }
-                if (commonResp != null) {
-                    if (!success(commonResp)) {
-                        throw new Exception(); //TODO revert map changes
-                    }
+                this.mapCache.commitChanges();
 
-                    handleCommonResponse(commonResp);
-
-                    if (isStructuring) {
-                        this.mapCache.structureField(targetCoordinate);
-                    }
-                }
-            } else {
-                throw new RunOutOfTimeException("DoAction");
+                handleCommonResponse(commonResp);
             }
         } catch (Exception e) {
-            success = false;
+            this.mapCache.revertChanges();
+            throw e;
         }
-
-        return success;
     }
 
     protected void login() {
@@ -165,9 +152,12 @@ public abstract class AbstractLogicBot extends Bot {
         }
     }
 
-    protected Collection<Scouting> doRadar(final Collection<WsCoordinate> coordinates) throws Exception {
-        if (this.apLeft < getActionCost(Actions.RADAR) * coordinates.size() && !timeHelper.isInTime()) {
-            return Collections.EMPTY_LIST;
+    protected void doRadar(final Collection<WsCoordinate> coordinates) throws Exception {
+        if (this.apLeft < getActionCost(Actions.RADAR) * coordinates.size()) {
+            throw new RunOutOfActionPointsException("DoRadar");
+        }
+        if (!timeHelper.isInTime()) {
+            throw new RunOutOfTimeException("DoRadar");
         }
 
         RadarRequest radarRequest = FACTORY.createRadarRequest();
@@ -178,16 +168,18 @@ public abstract class AbstractLogicBot extends Bot {
         CommonResp commonResp = radarResponse.getResult();
         if (success(commonResp)) {
             handleCommonResponse(commonResp);
-            return radarResponse.getScout();
+            this.mapCache.handleScouts(radarResponse.getScout());
         }
 
         logToSystemOut(radarResponse, radarResponse.getClass());
-        return Collections.EMPTY_LIST;
     }
 
-    protected Collection<Scouting> doWatch() throws Exception {
-        if (this.apLeft < getActionCost(Actions.WATCH) && !timeHelper.isInTime()) {
-            return Collections.EMPTY_LIST;
+    protected void doWatch() throws Exception {
+        if (this.apLeft < getActionCost(Actions.WATCH)) {
+            throw new RunOutOfActionPointsException("DoWatch");
+        }
+        if (!timeHelper.isInTime()) {
+            throw new RunOutOfTimeException("DoWatch");
         }
 
         WatchRequest watchRequest = FACTORY.createWatchRequest();
@@ -197,19 +189,21 @@ public abstract class AbstractLogicBot extends Bot {
         CommonResp commonResp = watchResponse.getResult();
         if (success(commonResp)) {
             handleCommonResponse(commonResp);
-            return watchResponse.getScout();
+            this.mapCache.handleScouts(watchResponse.getScout());
         }
 
         logToSystemOut(watchRequest, watchRequest.getClass());
-        return Collections.EMPTY_LIST;
     }
 
     private CommonResp doExplode(WsCoordinate targetCoordinate) throws Exception {
         if (this.expLeft == 0) {
-            throw new Exception("Run out of exp.");
+            throw new RunOutOfExplosionsException("DoExplode");
         }
 
         this.mapCache.structureField(targetCoordinate);
+        if (!timeHelper.isInTime()) {
+            throw new RunOutOfTimeException("DoDrill");
+        }
 
         ExplodeCellRequest explodeCellRequest = FACTORY.createExplodeCellRequest();
         explodeCellRequest.setDirection(this.mapCache.getDirection(this.coords, targetCoordinate));
@@ -221,7 +215,11 @@ public abstract class AbstractLogicBot extends Bot {
         return response.getResult();
     }
 
-    private CommonResp doMove(WsCoordinate targetCoordinate) throws InvalidDirectionException {
+    private CommonResp doMove(WsCoordinate targetCoordinate) throws Exception {
+        this.mapCache.moveUnit(unitNumber, targetCoordinate);
+        if (!timeHelper.isInTime()) {
+            throw new RunOutOfTimeException("DoDrill");
+        }
         MoveBuilderUnitRequest request = FACTORY.createMoveBuilderUnitRequest();
         request.setDirection(this.mapCache.getDirection(this.coords, targetCoordinate));
         request.setUnit(this.unitNumber);
@@ -232,7 +230,11 @@ public abstract class AbstractLogicBot extends Bot {
         return response.getResult();
     }
 
-    private CommonResp doDrill(WsCoordinate targetCoordinate) throws InvalidDirectionException {
+    private CommonResp doDrill(WsCoordinate targetCoordinate) throws Exception {
+        this.mapCache.structureField(targetCoordinate);
+        if (!timeHelper.isInTime()) {
+            throw new RunOutOfTimeException("DoDrill");
+        }
         StructureTunnelRequest request = FACTORY.createStructureTunnelRequest();
         request.setDirection(this.mapCache.getDirection(this.coords, targetCoordinate));
         request.setUnit(this.unitNumber);
@@ -260,12 +262,10 @@ public abstract class AbstractLogicBot extends Bot {
     }
 
     private void handleCommonResponse(final CommonResp commonResp) {
-        if (success(commonResp)) {
-            this.apLeft = commonResp.getActionPointsLeft();
-            this.expLeft = commonResp.getExplosivesLeft();
-            this.turnsLeft = commonResp.getTurnsLeft();
-            this.unitNumber = commonResp.getBuilderUnit();
-        }
+        this.apLeft = commonResp.getActionPointsLeft();
+        this.expLeft = commonResp.getExplosivesLeft();
+        this.turnsLeft = commonResp.getTurnsLeft();
+        this.unitNumber = commonResp.getBuilderUnit();
     }
 
     private boolean success(final CommonResp commonResp) {
@@ -288,8 +288,8 @@ public abstract class AbstractLogicBot extends Bot {
         }
     }
 
-	public int getUnitNumber() {
-		return unitNumber;
-	}
+    public int getUnitNumber() {
+        return unitNumber;
+    }
 
 }
