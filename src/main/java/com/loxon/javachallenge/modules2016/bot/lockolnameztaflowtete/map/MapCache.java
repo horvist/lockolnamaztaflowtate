@@ -66,7 +66,7 @@ public class MapCache implements IMapCache {
 	}
 
 	@Override
-	public void moveUnit(AbstractLogicBot bot, WsCoordinate coord) throws Exception {
+	public void moveUnit(AbstractLogicBot bot, WsCoordinate coord) throws IllegalStateException {
 		final int unit = bot.getUnitNumber();
 		final WsCoordinate currentCoords = unitCoords[unit];
 		final Field currentField = getMappedFieldForCoords(coord);
@@ -94,7 +94,7 @@ public class MapCache implements IMapCache {
 	}
 
 	@Override
-	public WsDirection getDirection(WsCoordinate actual, WsCoordinate target) throws Exception {
+	public WsDirection getDirection(WsCoordinate actual, WsCoordinate target) throws IllegalStateException {
 		final Field mappedTargetField = getMappedFieldForCoords(target);
 		if (mappedTargetField.getTeam() != FieldTeam.NO_MANS_LAND) {
 			throw new IllegalStateException(getCoordErrorMessage("The target field is not empty, somebody is standing on it!", target, null));
