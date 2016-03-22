@@ -1,6 +1,7 @@
 package com.loxon.javachallenge.modules2016.bot.abslogic;
 
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.IMapCache;
+import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.MapCache;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.time.ITimeHelper;
 
 /**
@@ -15,6 +16,6 @@ public final class Factory {
     }
 
     public static IMapCache getMap(){
-        return null;
+        return MapCache.getInstance();
     }
 }

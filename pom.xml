@@ -13,9 +13,7 @@
     		<artifactId>javachallenge-bot-core</artifactId>
 			<version>1.0.0</version>
 		</dependency>
-	</dependencies>  
-  
-  
+	</dependencies>
   
 	<build>
 		<plugins>			
@@ -34,26 +32,18 @@
                 <configuration>
                     <archive>
                       <manifest>
-		                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+		                <!--addDefaultImplementationEntries>true</addDefaultImplementationEntries-->
 		                <addClasspath>true</addClasspath>
-		                <mainClass>com.loxon.javachallenge.modules2015.bot.example.ExampleBot</mainClass>
+		                <mainClass>com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.HardBot</mainClass>
 		              </manifest>
-		              <manifestEntries>
+		              <!--manifestEntries>
 		                <Class-Path>d:/dev/JavaChallenge/target/test-bot-core.jar</Class-Path>
-		              </manifestEntries>
+		              </manifestEntries-->
                     </archive>
                 </configuration>
             </plugin>		
 		</plugins>
-		<finalName>test-bot-core</finalName>
+		<finalName>lockolnameztaflowtete-bot-core</finalName>
 	</build>
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
 </project>

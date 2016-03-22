@@ -19,6 +19,18 @@ public class MapCache implements IMapCache {
 	
 	private Field[][] map;
 
+	private static MapCache instance = null;
+
+	private MapCache(){
+	}
+
+	public static IMapCache getInstance() {
+		if(instance == null) {
+			instance = new MapCache();
+		}
+		return instance;
+	}
+
 	@Override
 	public void initMap(WsCoordinate coord) {
 		this.map = new Field[coord.getX()][coord.getY()];
@@ -74,8 +86,7 @@ public class MapCache implements IMapCache {
 	}
 	
 	private Field getMappedFieldForCoords(WsCoordinate coord) {
-		// TODO csináljuk meg, ha egyértelmû hogy a térkép méretei mit is jelölnek.
-		return null;
+		return this.map[coord.getX()][coord.getY()];
 	}
 
 }
