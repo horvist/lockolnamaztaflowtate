@@ -1,6 +1,7 @@
 package com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map;
 
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.ObjectType;
+import com.loxon.javachallenge.modules2016.bot.enums.FieldTeam;
 
 /**
  * Class representing a field in a map.

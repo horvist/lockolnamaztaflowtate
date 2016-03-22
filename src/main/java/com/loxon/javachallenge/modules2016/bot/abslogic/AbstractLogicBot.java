@@ -295,4 +295,8 @@ public abstract class AbstractLogicBot extends Bot {
         }
     }
 
+	public int getUnitNumber() {
+		return unitNumber;
+	}
+
 }

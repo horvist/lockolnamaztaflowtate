@@ -1,11 +1,11 @@
 package com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map;
 
-import com.loxon.javachallenge.modules2015.bot.core.Bot;
+import java.util.Collection;
+
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.Scouting;
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.WsCoordinate;
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.WsDirection;
-
-import java.util.Collection;
+import com.loxon.javachallenge.modules2016.bot.abslogic.AbstractLogicBot;
 
 /**
  * IMapCache interface. (Such comment, much wow)
@@ -22,11 +22,11 @@ public interface IMapCache {
 
 	public void markShuttleExit(WsCoordinate coord);
 	
-	public void moveUnit(Bot bot, WsCoordinate coord);
+	public void moveUnit(AbstractLogicBot bot, WsCoordinate coord) throws Exception;
 	
 	public void structureField(WsCoordinate coord);
 
-	public WsDirection getDirection(WsCoordinate actual, WsCoordinate target);
+	public WsDirection getDirection(WsCoordinate actual, WsCoordinate target) throws Exception;
 
 	// this will handle watch and radar result
 	public void handleScouts(Collection<Scouting> scoutings);
