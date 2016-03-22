@@ -15,7 +15,11 @@ public class Field {
 	private ObjectType objectType;
 	
 	private FieldTeam team;
-
+	
+	public Field() {
+		this.team = FieldTeam.NO_MANS_LAND;
+	}
+	
 	public ObjectType getObjectType() {
 		return objectType;
 	}

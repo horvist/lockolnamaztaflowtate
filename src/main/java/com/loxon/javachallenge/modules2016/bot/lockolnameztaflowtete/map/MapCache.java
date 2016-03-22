@@ -127,7 +127,7 @@ public class MapCache implements IMapCache {
 				
 				getMappedFieldForCoords(currentCoords)
 					.setObjectType(ObjectType.TUNNEL)
-					.setTeam(FieldTeam.NO_MANS_LAND);	// may throw array out of bounds exception
+					.setTeam(FieldTeam.ALLY);	// may throw array out of bounds exception
 			}
 			
 			getMappedFieldForCoords(coord)
@@ -138,8 +138,6 @@ public class MapCache implements IMapCache {
 		} catch (Exception e) {
 			throw new InvalidMoveCommandException(e);
 		}
-		
-		// TODO elég ennyi?
 	}
 
 	@Override
