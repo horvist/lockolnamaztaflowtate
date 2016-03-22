@@ -34,5 +34,13 @@ public class Field {
 		return this;
 	}
 	
+	public Field clone() {
+		Field newField = new Field();
+		newField.setTeam(this.team);
+		newField.setObjectType(this.objectType);
+		
+		return newField;
+	}
+	
 	
 }

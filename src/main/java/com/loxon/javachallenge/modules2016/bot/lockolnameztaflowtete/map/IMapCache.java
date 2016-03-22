@@ -25,7 +25,7 @@ public interface IMapCache {
 
 	public void markShuttleExit(WsCoordinate coord);
 	
-	public void moveUnit(AbstractLogicBot bot, WsCoordinate coord) throws InvalidMoveCommandException;
+	public void moveUnit(int unit, WsCoordinate coord) throws InvalidMoveCommandException;
 	
 	public void structureField(WsCoordinate coord) throws StructureFieldException;
 
