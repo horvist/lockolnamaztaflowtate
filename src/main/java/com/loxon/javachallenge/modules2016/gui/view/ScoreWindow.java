@@ -71,6 +71,7 @@ public class ScoreWindow extends JWindow {
         revalidate();
     }
 
+    // main method only for testing
     public static void main(String[] args) throws Exception {
         ScoreWindow sc = new ScoreWindow();
         sc.showWindow();

@@ -146,7 +146,7 @@ public abstract class AbstractLogicBot extends Bot {
                 this.mapCache.placeShuttle(response.getUnits().get(0).getCord());
                 success = true;
                 if(TEST_MODE){
-                    showGui(response.getSize());
+                    this.guiController.initAndStartGui(response.getSize());
                 }
             }
             logToSystemOut(response, response.getClass());
@@ -300,7 +300,4 @@ public abstract class AbstractLogicBot extends Bot {
         this.guiController = guiController;
     }
 
-    public void showGui(WsCoordinate size){
-        this.guiController.initAndStartGui(size);
-    }
 }

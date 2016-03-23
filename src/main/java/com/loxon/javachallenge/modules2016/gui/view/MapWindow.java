@@ -1,12 +1,19 @@
 package com.loxon.javachallenge.modules2016.gui.view;
 
+import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.ObjectFactory;
+import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.ObjectType;
+import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.WsCoordinate;
+import com.loxon.javachallenge.modules2016.bot.enums.FieldTeam;
+import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.Field;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
-import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.Random;
+
 
 /**
  * @author kalmarr
@@ -16,20 +23,25 @@ public class MapWindow extends JWindow {
     private int X = 0;
     private int Y = 0;
 
-    private JPanel[][] map;
+    private JLabel[][] map;
 
-    private static final int sizeOfPicInPixel = 35;
+    private ClassLoader classLoader;
+
+    private static final int sizeOfPicInPixel = 25;
 
     public MapWindow(int x, int y) {
         init(x, y);
     }
 
-    private void init(int x, int y) {
-        this.map = new JPanel[x + 1][y + 1];
+    private void init(int xSize, int ySize) {
+        classLoader = getClass().getClassLoader();
+        int cols = xSize + 1;
+        int rows = ySize + 1;
+        this.map = new JLabel[rows][cols];
 
         JPanel mapPanel = new JPanel();
-        mapPanel.setLayout(new GridLayout(x, y));
-        setBounds(0, 0, x * sizeOfPicInPixel, y * sizeOfPicInPixel);
+        mapPanel.setLayout(new GridLayout(rows, cols));
+        setBounds(0, 0, cols * sizeOfPicInPixel, rows * sizeOfPicInPixel);
         addMouseMotionListener(new MouseMotionAdapter() {
             public void mouseDragged(MouseEvent e) {
                 setLocation(getLocation().x + (e.getX() - X),
@@ -37,47 +49,152 @@ public class MapWindow extends JWindow {
             }
         });
 
-        for(int i = 0; i < x * y; i++){
-            try {
-                mapPanel.add(createPanel());
-            } catch (Exception e){
-                mapPanel.add(new JPanel());
+        ImageIcon imageIcon = null;
+        try {
+            File file = new File(classLoader.getResource(Picture.UNKNOWN_FIELD.getPath()).getFile());
+            imageIcon = new ImageIcon(ImageIO.read(file));
+        } catch (Exception e) {
+            // never happen
+        }
+        for (int i = 0; i < map.length; i++) {
+            for (int j = 0; j < map[i].length; j++) {
+                JLabel newLabel = null;
+                try {
+                    newLabel = new JLabel();
+                    newLabel.setIcon(imageIcon);
+                } catch (Exception e) {
+                    newLabel = new JLabel();
+                }
+                map[i][j] = newLabel;
+                mapPanel.add(newLabel);
             }
         }
-
-        //TODO fill map
-
         add(mapPanel);
     }
 
-    public JLabel createPanel() throws Exception {
-        ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(classLoader.getResource(Pictures.TUNNEL.getPath()).getFile());
-        BufferedImage myPicture = ImageIO.read(file);
-        JLabel picLabel = new JLabel(new ImageIcon(myPicture));
-        return picLabel;
+    public void modifyField(final WsCoordinate coord, final Field field) {
+        try {
+            File file = new File(classLoader.getResource(getPictureForField(field).getPath()).getFile());
+            map[coord.getY()][coord.getX()].setIcon(new ImageIcon(ImageIO.read(file)));
+            revalidate();
+        } catch (Exception e) {
+            System.out.println("Cannot change image here: x=" + coord.getX() + ", y=" + coord.getY());
+        }
     }
 
-    public void showWindow(){
+    public Picture getPictureForField(final Field field) {
+        switch (field.getObjectType()) {
+            case TUNNEL:
+                if (FieldTeam.ALLY.equals(field.getTeam())) {
+                    return Picture.TUNNEL;
+                }
+                return Picture.ENEMY_TUNNEL;
+
+            case SHUTTLE:
+                if (FieldTeam.ALLY.equals(field.getTeam())) {
+                    return Picture.SHUTTLE;
+                }
+                return Picture.ENEMY_SHUTTLE;
+
+            case BUILDER_UNIT:
+                if (FieldTeam.ALLY.equals(field.getTeam())) {
+                    return Picture.TEAM_MEMBER;
+                }
+                return Picture.ENEMY_TEAM_MEMBER;
+
+            case ROCK:
+                return Picture.CRYSTAL;
+
+            case GRANITE:
+                return Picture.GRANITE;
+
+            case OBSIDIAN:
+                return Picture.OBSIDIAN;
+
+            default:
+                return Picture.UNKNOWN_FIELD;
+        }
+    }
+
+    public void showWindow() {
         setVisible(true);
     }
 
-    public static void main(String[] args) {
-        MapWindow mapWindow = new MapWindow(20,20);
+
+    // main method only for testing
+    public static void main(String[] args) throws Exception {
+        MapWindow mapWindow = new MapWindow(52, 26);
         mapWindow.showWindow();
+        WsCoordinate coord = new ObjectFactory().createWsCoordinate();
+        for (int i = 0; i < 27; i++) {
+            for (int j = 0; j < 53; j++) {
+                coord.setX(j);
+                coord.setY(i);
+                mapWindow.modifyField(coord, getRandomField());
+                Thread.sleep(100L);
+            }
+        }
+//        coord.setX(30);
+//        coord.setY(0);
+//        mapWindow.modifyField(coord, getRandomField());
     }
 
-    private enum Pictures {
+    public static Field getRandomField() {
+        Field field = new Field();
+        Random rn = new Random();
+        int answer = rn.nextInt(3) + 1;
+        if (answer == 1) {
+            field.setTeam(FieldTeam.ALLY);
+        } else {
+            field.setTeam(FieldTeam.ENEMY);
+        }
+        answer = rn.nextInt(6) + 1;
+        switch (answer) {
+            case 1:
+                field.setObjectType(ObjectType.TUNNEL);
+                break;
+            case 2:
+                field.setObjectType(ObjectType.SHUTTLE);
+                break;
+            case 3:
+                field.setObjectType(ObjectType.BUILDER_UNIT);
+                break;
+            case 4:
+                field.setObjectType(ObjectType.ROCK);
+                break;
+            case 5:
+                field.setObjectType(ObjectType.GRANITE);
+                break;
+            case 6:
+                field.setObjectType(ObjectType.OBSIDIAN);
+                break;
+        }
+        return field;
+    }
+
+    private enum Picture {
         UNKNOWN_FIELD("unknown_field.png"),
-        TUNNEL("tunnel.png");
+        // tunnels
+        TUNNEL("tunnel.png"),
+        ENEMY_TUNNEL("enemy_tunnel.png"),
+        //shuttle
+        SHUTTLE("shuttle.png"),
+        ENEMY_SHUTTLE("enemy_shuttle.png"),
+        // team mems
+        TEAM_MEMBER("enemy_team_mem.png"),
+        ENEMY_TEAM_MEMBER("team_mem.png"),
+        // rock types
+        OBSIDIAN("wall.png"),
+        GRANITE("granite.png"),
+        CRYSTAL("crystal.png");
 
         private String picture;
 
-        private Pictures(String pic){
+        Picture(String pic) {
             this.picture = pic;
         }
 
-        public String getPath(){
+        public String getPath() {
             return picture;
         }
     }

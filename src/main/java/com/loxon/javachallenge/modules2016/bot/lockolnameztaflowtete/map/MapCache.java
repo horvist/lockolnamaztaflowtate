@@ -13,6 +13,7 @@ import com.loxon.javachallenge.modules2016.bot.enums.FieldTeam;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.InvalidDirectionException;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.InvalidMoveCommandException;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.StructureFieldException;
+import com.loxon.javachallenge.modules2016.gui.controller.GuiController;
 
 /**
  * Utility class for caching map fields and providing
