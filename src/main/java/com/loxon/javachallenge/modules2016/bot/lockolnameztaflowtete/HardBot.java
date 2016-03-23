@@ -2,6 +2,7 @@ package com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete;
 
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.ObjectType;
 import com.loxon.javachallenge.modules2016.bot.abslogic.AbstractLogicBot;
+import com.loxon.javachallenge.modules2016.bot.abslogic.Factory;
 import com.loxon.javachallenge.modules2016.bot.enums.Actions;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.EndOfTurnException;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.IMapCache;
@@ -70,6 +71,7 @@ public class HardBot extends AbstractLogicBot {
         HardBot hardBot = new HardBot(args[1], args[2], args[0]);
         if (args.length > 3) {
             hardBot.setTestMode(true);
+            hardBot.setGuiController(Factory.createGuiController());
         }
 
     }

@@ -6,6 +6,7 @@ import com.loxon.javachallenge.modules2016.bot.enums.Actions;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.*;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.IMapCache;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.time.ITimeHelper;
+import com.loxon.javachallenge.modules2016.gui.controller.IGuiController;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -17,6 +18,8 @@ import java.util.Collection;
  * @author kalmarr
  */
 public abstract class AbstractLogicBot extends Bot {
+
+    private IGuiController guiController = null;
 
     // change this to redirect output if desired
     private static PrintStream out = System.out;
@@ -142,6 +145,9 @@ public abstract class AbstractLogicBot extends Bot {
                 initActionCosts(); // init cost informations
                 this.mapCache.placeShuttle(response.getUnits().get(0).getCord());
                 success = true;
+                if(TEST_MODE){
+                    showGui(response.getSize());
+                }
             }
             logToSystemOut(response, response.getClass());
         }
@@ -261,6 +267,9 @@ public abstract class AbstractLogicBot extends Bot {
         this.expLeft = commonResp.getExplosivesLeft();
         this.turnsLeft = commonResp.getTurnsLeft();
         this.unitNumber = commonResp.getBuilderUnit();
+        if(TEST_MODE){
+            guiController.refreshScore(commonResp.getScore());
+        }
     }
 
     private boolean success(final CommonResp commonResp) {
@@ -287,4 +296,11 @@ public abstract class AbstractLogicBot extends Bot {
         return unitNumber;
     }
 
+    public void setGuiController(IGuiController guiController) {
+        this.guiController = guiController;
+    }
+
+    public void showGui(WsCoordinate size){
+        this.guiController.initAndStartGui(size);
+    }
 }

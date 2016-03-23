@@ -4,6 +4,8 @@ import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.IMapCac
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.MapCache;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.time.ITimeHelper;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.time.TimeHelper;
+import com.loxon.javachallenge.modules2016.gui.controller.GuiController;
+import com.loxon.javachallenge.modules2016.gui.controller.IGuiController;
 
 /**
  * @author kalmarr
@@ -18,5 +20,9 @@ public final class Factory {
 
     public static IMapCache createMap(){
         return MapCache.getInstance();
+    }
+
+    public static IGuiController createGuiController(){
+        return new GuiController();
     }
 }
