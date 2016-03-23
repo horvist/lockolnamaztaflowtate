@@ -126,6 +126,9 @@ public class MapCache implements IMapCache {
 	@Override
 	public void markShuttleExit(WsCoordinate coord) {
 		shuttleExit = coord;
+		getMappedFieldForCoords(coord)
+			.setObjectType(ObjectType.ROCK)
+			.setTeam(FieldTeam.NO_MANS_LAND);
 	}
 
 	@Override
