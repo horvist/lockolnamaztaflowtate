@@ -217,12 +217,13 @@ public abstract class AbstractLogicBot extends Bot {
     }
 
     private CommonResp doMove(WsCoordinate targetCoordinate) throws Exception {
+        WsDirection wsDirection = this.mapCache.getDirection(this.coords, targetCoordinate);
         this.mapCache.moveUnit(unitNumber, targetCoordinate);
         if (!timeHelper.isInTime()) {
             throw new RunOutOfTimeException("DoDrill");
         }
         MoveBuilderUnitRequest request = FACTORY.createMoveBuilderUnitRequest();
-        request.setDirection(this.mapCache.getDirection(this.coords, targetCoordinate));
+        request.setDirection(wsDirection);
         request.setUnit(this.unitNumber);
         MoveBuilderUnitResponse response = service.moveBuilderUnit(request);
 
