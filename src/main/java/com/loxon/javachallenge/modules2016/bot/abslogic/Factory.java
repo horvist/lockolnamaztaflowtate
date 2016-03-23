@@ -23,6 +23,6 @@ public final class Factory {
     }
 
     public static IGuiController createGuiController(){
-        return new GuiController();
+        return GuiController.getInstance();
     }
 }

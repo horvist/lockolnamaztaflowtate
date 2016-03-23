@@ -131,7 +131,7 @@ public class MapWindow extends JWindow {
                 coord.setX(j);
                 coord.setY(i);
                 mapWindow.modifyField(coord, getRandomField());
-                Thread.sleep(100L);
+//                Thread.sleep(100L);
             }
         }
 //        coord.setX(30);

@@ -21,7 +21,7 @@ public final class GuiController implements IGuiController {
 
     private IMapCache mapCache = Factory.createMap();
 
-    private static IGuiController getInstance(){
+    public static IGuiController getInstance(){
         if(getInstance() == null){
             instance = new GuiController();
         }
