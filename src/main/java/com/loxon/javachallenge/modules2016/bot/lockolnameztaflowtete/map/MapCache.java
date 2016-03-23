@@ -179,7 +179,7 @@ public class MapCache implements IMapCache {
 	@Override
 	public WsDirection getDirection(WsCoordinate actual, WsCoordinate target) throws InvalidDirectionException {
 		final Field mappedTargetField = getMappedFieldForCoords(target);
-		if (mappedTargetField.getTeam() != FieldTeam.NO_MANS_LAND) {
+		if (mappedTargetField.getTeam() != FieldTeam.NO_MANS_LAND && mappedTargetField.getObjectType() != ObjectType.TUNNEL) {
 			throw new InvalidDirectionException(getCoordErrorMessage("The target field is not empty, somebody is standing on it!", target, null));
 		}
 		if (coordEquals(actual, shuttleCoord) && !coordEquals(target, shuttleExit)) {
