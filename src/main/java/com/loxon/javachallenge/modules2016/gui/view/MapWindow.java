@@ -58,13 +58,8 @@ public class MapWindow extends JWindow {
         }
         for (int i = 0; i < map.length; i++) {
             for (int j = 0; j < map[i].length; j++) {
-                JLabel newLabel = null;
-                try {
-                    newLabel = new JLabel();
-                    newLabel.setIcon(imageIcon);
-                } catch (Exception e) {
-                    newLabel = new JLabel();
-                }
+                JLabel newLabel = new JLabel();
+                newLabel.setIcon(imageIcon);
                 map[i][j] = newLabel;
                 mapPanel.add(newLabel);
             }
