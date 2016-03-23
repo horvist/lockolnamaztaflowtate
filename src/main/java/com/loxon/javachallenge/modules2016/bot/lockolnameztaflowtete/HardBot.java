@@ -12,7 +12,7 @@ import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.IMapCac
  */
 public class HardBot extends AbstractLogicBot {
 
-    protected Boolean connectedToGame = false;
+    protected boolean connectedToGame = false;
     protected static final long TIME_INTERVAL = 145L;
 
     private boolean[] escaped = new boolean[IMapCache.NUM_OF_UNITS];
@@ -47,26 +47,18 @@ public class HardBot extends AbstractLogicBot {
             } catch (EndOfTurnException e) {
                 continue;
             } catch (Exception e) {
-                Thread.sleep(TIME_INTERVAL);
+                e.printStackTrace();
             }
         }
     }
 
     private void doSomething() throws Exception {
-        while (true) {
-            try {
-                if (!escaped[this.getUnitNumber()]) {
-                    if (ObjectType.ROCK.equals(this.mapCache.getField(this.mapCache.getShuttleExit()).getObjectType())) {
-                        doAction(Actions.DRILL, mapCache.getShuttleExit());
-                    }
-                    doAction(Actions.MOVE, mapCache.getShuttleExit());
-                    escaped[this.getUnitNumber()] = true;
-                }
-            } catch (Exception e) {
+        if (!escaped[this.getUnitNumber()]) {
+            if (ObjectType.ROCK.equals(this.mapCache.getField(this.mapCache.getShuttleExit()).getObjectType())) {
+                doAction(Actions.DRILL, mapCache.getShuttleExit());
             }
-
-            doWatch();
-            throw new Exception("fasz");
+            doAction(Actions.MOVE, mapCache.getShuttleExit());
+            escaped[this.getUnitNumber()] = true;
         }
     }
 

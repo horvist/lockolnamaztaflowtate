@@ -8,7 +8,6 @@ import com.loxon.javachallenge.modules2016.gui.view.MapWindow;
 import com.loxon.javachallenge.modules2016.gui.view.ScoreWindow;
 
 /**
- *
  * @author kalmarr
  */
 public final class GuiController implements IGuiController {
@@ -21,47 +20,36 @@ public final class GuiController implements IGuiController {
 
     private IMapCache mapCache = Factory.createMap();
 
-    public static IGuiController getInstance(){
-        if(instance == null){
-			synchronized (GuiController.class) {
-				if(instance == null) {
-					instance = new GuiController();
-				}
-			}
+    public static IGuiController getInstance() {
+        if (instance == null) {
+            synchronized (GuiController.class) {
+                if (instance == null) {
+                    instance = new GuiController();
+                }
+            }
         }
         return instance;
     }
 
     @Override
     public void updateElements(WsCoordinate... coordinates) {
-    	new Thread() {
-    		public void run() {
-    			for(WsCoordinate coord : coordinates){
-    				mapWindow.modifyField(coord, mapCache.getField(coord));
-    			}    	   
-    		}
-    	}.start();
+        for (WsCoordinate coord : coordinates) {
+            mapWindow.modifyField(coord, mapCache.getField(coord));
+        }
     }
 
     @Override
     public void initAndStartGui(WsCoordinate size) {
-    	new Thread() {
-    		public void run() {
-    			mapWindow = new MapWindow(size.getX(), size.getY());
-    			mapWindow.showWindow();
+        mapWindow = new MapWindow(size.getX(), size.getY());
+        mapWindow.showWindow();
 
-    			scoreWindow = new ScoreWindow();
-    			scoreWindow.showWindow();
-    		}
-    	}.start();
-	}
+        scoreWindow = new ScoreWindow();
+        scoreWindow.showWindow();
+    }
 
     @Override
     public void refreshScore(WsScore score, int actionPointLeft, int explLeft) {
-    	new Thread() {
-    	    public void run() {
-    	        scoreWindow.refreshScore(score, actionPointLeft, explLeft);
-    	    }
-    	}.start();
-	}
+        scoreWindow.refreshScore(score, actionPointLeft, explLeft);
+
+    }
 }

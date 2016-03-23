@@ -139,15 +139,15 @@ public abstract class AbstractLogicBot extends Bot {
             StartGameResponse response = service.startGame(FACTORY.createStartGameRequest());
             CommonResp commonResponse = response.getResult();
             if (success(commonResponse)) {
-                handleCommonResponse(commonResponse);
+                if(TEST_MODE){
+                    this.guiController.initAndStartGui(response.getSize());
+                }
                 this.mapCache.initMap(response.getSize());
                 initShuttleAndExitPos(); // init shuttle positions
                 initActionCosts(); // init cost informations
                 this.mapCache.placeShuttle(response.getUnits().get(0).getCord());
                 success = true;
-                if(TEST_MODE){
-                    this.guiController.initAndStartGui(response.getSize());
-                }
+                handleCommonResponse(commonResponse);
             }
             logToSystemOut(response, response.getClass());
         }
