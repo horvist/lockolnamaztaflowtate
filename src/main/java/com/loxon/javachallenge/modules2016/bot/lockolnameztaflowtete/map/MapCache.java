@@ -239,6 +239,8 @@ public class MapCache implements IMapCache {
 			} else {
 				field.setTeam(FieldTeam.NO_MANS_LAND);
 			}
+			
+			Factory.createGuiController().updateElements(scouting.getCord());
 		}
 	}
 
