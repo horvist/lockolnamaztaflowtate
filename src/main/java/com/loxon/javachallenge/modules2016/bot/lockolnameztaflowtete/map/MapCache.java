@@ -253,10 +253,10 @@ public class MapCache implements IMapCache {
 	}
 	
 	private boolean isInMap(WsCoordinate target) {
-		return target.getX() > originalMapSize.getX()
+		return !(target.getX() > originalMapSize.getX()
 				|| target.getX() < 0
 				|| target.getY() > originalMapSize.getY()
-				|| target.getY() < 0;
+				|| target.getY() < 0);
 	}
 	
 	private Field getMappedFieldForCoords(WsCoordinate coord) {
