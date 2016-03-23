@@ -30,22 +30,34 @@ public final class GuiController implements IGuiController {
 
     @Override
     public void updateElements(WsCoordinate... coordinates) {
-        for(WsCoordinate coord : coordinates){
-            mapWindow.modifyField(coord, mapCache.getField(coord));
-        }
+    	new Thread() {
+    		public void run() {
+    			for(WsCoordinate coord : coordinates){
+    				mapWindow.modifyField(coord, mapCache.getField(coord));
+    			}    	   
+    		}
+    	}.start();
     }
 
     @Override
     public void initAndStartGui(WsCoordinate size) {
-        mapWindow = new MapWindow(size.getX(), size.getY());
-        mapWindow.showWindow();
+    	new Thread() {
+    		public void run() {
+    			mapWindow = new MapWindow(size.getX(), size.getY());
+    			mapWindow.showWindow();
 
-        scoreWindow = new ScoreWindow();
-        scoreWindow.showWindow();
+    			scoreWindow = new ScoreWindow();
+    			scoreWindow.showWindow();
+    		}
+    	}.start();
     }
 
     @Override
     public void refreshScore(WsScore score) {
-        scoreWindow.refreshScore(score);
+    	new Thread() {
+    	    public void run() {
+    	        scoreWindow.refreshScore(score);
+    	    }
+    	}.start();
     }
 }

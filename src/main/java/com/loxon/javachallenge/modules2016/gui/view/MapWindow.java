@@ -1,18 +1,25 @@
 package com.loxon.javachallenge.modules2016.gui.view;
 
+import java.awt.GridLayout;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JWindow;
+
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.ObjectFactory;
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.ObjectType;
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.WsCoordinate;
 import com.loxon.javachallenge.modules2016.bot.enums.FieldTeam;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.Field;
-
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
-import java.io.File;
-import java.util.Random;
 
 
 /**
@@ -20,7 +27,9 @@ import java.util.Random;
  */
 public class MapWindow extends JWindow {
 
-    private int X = 0;
+	private static final long serialVersionUID = 7159230572798940943L;
+	
+	private int X = 0;
     private int Y = 0;
 
     private JLabel[][] map;
@@ -28,6 +37,8 @@ public class MapWindow extends JWindow {
     private ClassLoader classLoader;
 
     private static final int sizeOfPicInPixel = 25;
+    
+    private static final Map<Integer, ImageIcon> pictureCache = new HashMap<Integer, ImageIcon>();
 
     public MapWindow(int x, int y) {
         init(x, y);
@@ -74,15 +85,26 @@ public class MapWindow extends JWindow {
 
     public void modifyField(final WsCoordinate coord, final Field field) {
         try {
-            File file = new File(classLoader.getResource(getPictureForField(field).getPath()).getFile());
-            map[coord.getY()][coord.getX()].setIcon(new ImageIcon(ImageIO.read(file)));
+            map[coord.getY()][coord.getX()].setIcon(getImageIconForField(field));
             revalidate();
         } catch (Exception e) {
             System.out.println("Cannot change image here: x=" + coord.getX() + ", y=" + coord.getY());
         }
     }
+    
+    private ImageIcon getImageIconForField(final Field field) throws IOException {
+    	final Picture picture = getPictureForField(field);
+    	ImageIcon imageIcon = pictureCache.get(picture.ordinal());
+    	if (imageIcon == null) {
+    		File file = new File(classLoader.getResource(getPictureForField(field).getPath()).getFile());
+    		imageIcon = new ImageIcon(ImageIO.read(file));
+    		pictureCache.put(picture.ordinal(), imageIcon);
+    	}
+    	
+    	return imageIcon;
+    }
 
-    public Picture getPictureForField(final Field field) {
+    private Picture getPictureForField(final Field field) {
         switch (field.getObjectType()) {
             case TUNNEL:
                 if (FieldTeam.ALLY.equals(field.getTeam())) {
