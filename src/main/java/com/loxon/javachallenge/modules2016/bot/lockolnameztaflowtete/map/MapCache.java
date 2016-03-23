@@ -9,11 +9,12 @@ import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.ObjectType;
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.Scouting;
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.WsCoordinate;
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.WsDirection;
+import com.loxon.javachallenge.modules2016.bot.abslogic.AbstractLogicBot;
+import com.loxon.javachallenge.modules2016.bot.abslogic.Factory;
 import com.loxon.javachallenge.modules2016.bot.enums.FieldTeam;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.InvalidDirectionException;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.InvalidMoveCommandException;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.StructureFieldException;
-import com.loxon.javachallenge.modules2016.gui.controller.GuiController;
 
 /**
  * Utility class for caching map fields and providing
@@ -40,17 +41,21 @@ public class MapCache implements IMapCache {
     private class LocalCoords {
     	final int x;
     	final int y;
+    	final WsCoordinate wsCoord;
     	
-    	LocalCoords(int x, int y) {
+    	LocalCoords(int x, int y, WsCoordinate wsCord) {
     		this.x = x;
     		this.y = y;
+    		this.wsCoord = wsCord;
     	}
     	
 		public int getX() {
 			return x;
 		}
 
-
+		public WsCoordinate getWsCoord() {
+			return wsCoord;
+		}
 
 		public int getY() {
 			return y;
@@ -108,6 +113,10 @@ public class MapCache implements IMapCache {
 			// setting all units to starting point - the shuttles coordinates
 			unitCoords[i] = coord;
 		}
+		
+		if (AbstractLogicBot.isTestMode()) {
+			Factory.createGuiController().updateElements(coord);
+		}
 	}
 
 	@Override
@@ -116,26 +125,28 @@ public class MapCache implements IMapCache {
 	}
 
 	@Override
-	public void moveUnit(int unit, WsCoordinate coord) throws InvalidMoveCommandException {
+	public void moveUnit(int unit, WsCoordinate targetCoords) throws InvalidMoveCommandException {
 		try {
 			final WsCoordinate currentCoords = unitCoords[unit];
-			final Field currentField = getMappedFieldForCoords(coord);
+			final Field currentField = getMappedFieldForCoords(currentCoords);
+			final Field targetField = getMappedFieldForCoords(targetCoords);
 			
 			addFieldToUncommittedChanges(currentCoords, currentField);
+			addFieldToUncommittedChanges(targetCoords, targetField);
 			
 			if (currentField.getObjectType() != ObjectType.SHUTTLE) {
 				// shuttle should not be set to other type
 				
-				getMappedFieldForCoords(currentCoords)
+				currentField
 					.setObjectType(ObjectType.TUNNEL)
 					.setTeam(FieldTeam.ALLY);	// may throw array out of bounds exception
 			}
 			
-			getMappedFieldForCoords(coord)
+			targetField
 				.setObjectType(ObjectType.BUILDER_UNIT)
 				.setTeam(FieldTeam.ALLY);	// may throw array out of bounds exception
 			
-			unitCoords[unit] = coord;
+			unitCoords[unit] = targetCoords;
 		} catch (Exception e) {
 			throw new InvalidMoveCommandException(e);
 		}
@@ -262,12 +273,15 @@ public class MapCache implements IMapCache {
 	@Override
 	public void revertChanges() {
 		for (Entry<LocalCoords, Field> entry : uncommittedChanges.entrySet()) {
+			if (AbstractLogicBot.isTestMode()) {
+				Factory.createGuiController().updateElements(entry.getKey().getWsCoord());
+			}
 			resetFieldFromUncommittedChanges(entry.getKey(), entry.getValue());
 		}
 	}
 	
 	private void addFieldToUncommittedChanges(WsCoordinate coord, Field field) {
-		uncommittedChanges.put(new LocalCoords(coord.getX(), coord.getY()), field.clone());
+		uncommittedChanges.put(new LocalCoords(coord.getX(), coord.getY(), coord), field.clone());
 	}
 	
 	private void resetFieldFromUncommittedChanges(LocalCoords coord, Field field) {
@@ -276,7 +290,11 @@ public class MapCache implements IMapCache {
 
 	@Override
 	public void commitChanges() {
-		// no need for real commit, just clear uncommitted cache
+		if (AbstractLogicBot.isTestMode()) {
+			for (LocalCoords localCoord : uncommittedChanges.keySet()) {
+				Factory.createGuiController().updateElements(localCoord.getWsCoord());
+			}
+		}
 		uncommittedChanges.clear();
 	}
 

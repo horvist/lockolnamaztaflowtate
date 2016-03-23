@@ -261,6 +261,10 @@ public abstract class AbstractLogicBot extends Bot {
     public static void setTestMode(boolean testMode) {
         TEST_MODE = testMode;
     }
+    
+    public static boolean isTestMode() {
+        return TEST_MODE;
+    }
 
     private void handleCommonResponse(final CommonResp commonResp) {
         this.apLeft = commonResp.getActionPointsLeft();
