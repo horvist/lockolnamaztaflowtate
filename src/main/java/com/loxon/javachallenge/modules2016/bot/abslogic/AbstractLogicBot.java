@@ -193,7 +193,7 @@ public abstract class AbstractLogicBot extends Bot {
             this.mapCache.handleScouts(watchResponse.getScout());
         }
 
-        logToSystemOut(watchRequest, watchRequest.getClass());
+        logToSystemOut(watchResponse, watchResponse.getClass());
     }
 
     private CommonResp doExplode(WsCoordinate targetCoordinate) throws Exception {
@@ -272,7 +272,7 @@ public abstract class AbstractLogicBot extends Bot {
         this.turnsLeft = commonResp.getTurnsLeft();
         this.unitNumber = commonResp.getBuilderUnit();
         if(TEST_MODE){
-            guiController.refreshScore(commonResp.getScore());
+            guiController.refreshScore(commonResp.getScore(), this.apLeft, this.expLeft);
         }
     }
 

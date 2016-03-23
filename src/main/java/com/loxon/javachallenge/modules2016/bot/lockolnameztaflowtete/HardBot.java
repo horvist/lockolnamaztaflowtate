@@ -44,26 +44,29 @@ public class HardBot extends AbstractLogicBot {
                 } else {
                     Thread.sleep(TIME_INTERVAL);
                 }
-            } catch (EndOfTurnException e){
+            } catch (EndOfTurnException e) {
                 continue;
-            } catch (Exception e){
-//                Thread.sleep(TIME_INTERVAL);
+            } catch (Exception e) {
+                Thread.sleep(TIME_INTERVAL);
             }
         }
     }
 
     private void doSomething() throws Exception {
         while (true) {
-            if(!escaped[this.getUnitNumber()]){
-                if(ObjectType.ROCK.equals(this.mapCache.getField(this.mapCache.getShuttleExit()).getObjectType())){
-                    doAction(Actions.DRILL, mapCache.getShuttleExit());
+            try {
+                if (!escaped[this.getUnitNumber()]) {
+                    if (ObjectType.ROCK.equals(this.mapCache.getField(this.mapCache.getShuttleExit()).getObjectType())) {
+                        doAction(Actions.DRILL, mapCache.getShuttleExit());
+                    }
+                    doAction(Actions.MOVE, mapCache.getShuttleExit());
+                    escaped[this.getUnitNumber()] = true;
                 }
-                doAction(Actions.MOVE, mapCache.getShuttleExit());
-                escaped[this.getUnitNumber()] = true;
+            } catch (Exception e) {
             }
 
             doWatch();
-
+            throw new Exception("fasz");
         }
     }
 

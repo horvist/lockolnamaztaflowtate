@@ -5,7 +5,7 @@ package com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.time;
  */
 public class TimeHelper implements ITimeHelper {
 
-    private static ITimeHelper instance = null;
+    private static volatile ITimeHelper instance = null;
 
     protected static final long TIME_INTERVAL = 850L;
 
@@ -15,8 +15,12 @@ public class TimeHelper implements ITimeHelper {
     }
 
     public static ITimeHelper getInstance() {
-        if(instance == null) {
-            instance = new TimeHelper();
+        if(instance == null){
+            synchronized (TimeHelper.class) {
+                if (instance == null) {
+                    instance = new TimeHelper();
+                }
+            }
         }
         return instance;
     }

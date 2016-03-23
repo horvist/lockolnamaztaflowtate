@@ -34,7 +34,7 @@ public class MapCache implements IMapCache {
 	private WsCoordinate originalMapSize;
 	private WsCoordinate shuttleExit;
 	
-    private static IMapCache instance = null;
+    private static volatile IMapCache instance = null;
     
     private Map<LocalCoords, Field> uncommittedChanges = new HashMap<LocalCoords, Field>();
 
@@ -91,8 +91,12 @@ public class MapCache implements IMapCache {
     }
 
     public static IMapCache getInstance() {
-        if(instance == null) {
-            instance = new MapCache();
+		if(instance == null){
+			synchronized (MapCache.class) {
+				if (instance == null) {
+					instance = new MapCache();
+				}
+			}
         }
         return instance;
     }

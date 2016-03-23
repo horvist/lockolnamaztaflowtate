@@ -25,20 +25,26 @@ public class ScoreWindow extends JWindow {
 
     private JLabel bonusLabel;
 
+    private JLabel actionPointLabel;
+
+    private JLabel explosionLeftLabel;
+
     public ScoreWindow() {
         init();
     }
 
     private void init() {
-        setBounds(0, 0, 250, 150);
+        setBounds(0, 0, 350, 150);
 
         JPanel resultPanel = new JPanel();
-        resultPanel.setLayout(new GridLayout(4, 2));
+        resultPanel.setLayout(new GridLayout(6, 2));
 
         bonusLabel = new JLabel("0", JLabel.CENTER);
         peneltyPointLabel = new JLabel("0", JLabel.CENTER);
         rewardPointLabel = new JLabel("0", JLabel.CENTER);
         totalPointLabel = new JLabel("0", JLabel.CENTER);
+        actionPointLabel = new JLabel("0", JLabel.CENTER);
+        explosionLeftLabel = new JLabel("0", JLabel.CENTER);
 
         resultPanel.add(new JLabel("Total points", JLabel.RIGHT));
         resultPanel.add(totalPointLabel);
@@ -48,6 +54,10 @@ public class ScoreWindow extends JWindow {
         resultPanel.add(rewardPointLabel);
         resultPanel.add(new JLabel("Total bonusPoints", JLabel.RIGHT));
         resultPanel.add(bonusLabel);
+        resultPanel.add(new JLabel("ActionPoints Left", JLabel.RIGHT));
+        resultPanel.add(actionPointLabel);
+        resultPanel.add(new JLabel("Exploxions Left", JLabel.RIGHT));
+        resultPanel.add(explosionLeftLabel);
 
         addMouseMotionListener(new MouseMotionAdapter() {
             public void mouseDragged(MouseEvent e) {
@@ -63,11 +73,13 @@ public class ScoreWindow extends JWindow {
         setVisible(true);
     }
 
-    public void refreshScore(WsScore score) {
+    public void refreshScore(WsScore score, int actionPointLeft, int explLeft) {
         bonusLabel.setText(String.valueOf(score.getBonus()));
         peneltyPointLabel.setText(String.valueOf(score.getPenalty()));
         rewardPointLabel.setText(String.valueOf(score.getReward()));
         totalPointLabel.setText(String.valueOf(score.getTotal()));
+        actionPointLabel.setText(String.valueOf(actionPointLeft));
+        explosionLeftLabel.setText(String.valueOf(explLeft));
         revalidate();
     }
 
@@ -83,7 +95,7 @@ public class ScoreWindow extends JWindow {
             score.setPenalty(i++);
             score.setBonus(i++);
             score.setReward(i++);
-            sc.refreshScore(score);
+            sc.refreshScore(score, 10, 10);
             Thread.sleep(1000L);
         }
     }

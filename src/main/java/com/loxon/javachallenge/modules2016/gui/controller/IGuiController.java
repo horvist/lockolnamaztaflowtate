@@ -12,6 +12,6 @@ public interface IGuiController {
 
     public void updateElements(WsCoordinate... coordinates);
 
-    public void refreshScore(WsScore score);
+    public void refreshScore(WsScore score, int actionPointLeft, int explLeft);
 
 }

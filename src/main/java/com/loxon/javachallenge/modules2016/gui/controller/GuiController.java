@@ -13,7 +13,7 @@ import com.loxon.javachallenge.modules2016.gui.view.ScoreWindow;
  */
 public final class GuiController implements IGuiController {
 
-    private static IGuiController instance = null;
+    private static volatile IGuiController instance = null;
 
     private MapWindow mapWindow = null;
 
@@ -22,8 +22,12 @@ public final class GuiController implements IGuiController {
     private IMapCache mapCache = Factory.createMap();
 
     public static IGuiController getInstance(){
-        if(getInstance() == null){
-            instance = new GuiController();
+        if(instance == null){
+			synchronized (GuiController.class) {
+				if(instance == null) {
+					instance = new GuiController();
+				}
+			}
         }
         return instance;
     }
@@ -50,14 +54,14 @@ public final class GuiController implements IGuiController {
     			scoreWindow.showWindow();
     		}
     	}.start();
-    }
+	}
 
     @Override
-    public void refreshScore(WsScore score) {
+    public void refreshScore(WsScore score, int actionPointLeft, int explLeft) {
     	new Thread() {
     	    public void run() {
-    	        scoreWindow.refreshScore(score);
+    	        scoreWindow.refreshScore(score, actionPointLeft, explLeft);
     	    }
     	}.start();
-    }
+	}
 }
