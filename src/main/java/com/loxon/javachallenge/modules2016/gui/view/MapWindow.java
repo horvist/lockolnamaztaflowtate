@@ -28,16 +28,16 @@ import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.Field;
 public class MapWindow extends JWindow {
 
 	private static final long serialVersionUID = 7159230572798940943L;
-	
-	private int X = 0;
-    private int Y = 0;
+
+	private final int X = 0;
+    private final int Y = 0;
 
     private JLabel[][] map;
 
     private ClassLoader classLoader;
 
     private static final int sizeOfPicInPixel = 25;
-    
+
     private static final Map<Integer, ImageIcon> pictureCache = new HashMap<Integer, ImageIcon>();
 
     public MapWindow(int x, int y) {
@@ -54,6 +54,7 @@ public class MapWindow extends JWindow {
         mapPanel.setLayout(new GridLayout(rows, cols));
         setBounds(0, 0, cols * sizeOfPicInPixel, rows * sizeOfPicInPixel);
         addMouseMotionListener(new MouseMotionAdapter() {
+            @Override
             public void mouseDragged(MouseEvent e) {
                 setLocation(getLocation().x + (e.getX() - X),
                         getLocation().y + (e.getY() - Y));
@@ -86,7 +87,7 @@ public class MapWindow extends JWindow {
             System.out.println("Cannot change image here: x=" + coord.getX() + ", y=" + coord.getY());
         }
     }
-    
+
     private ImageIcon getImageIconForField(final Field field) throws IOException {
     	final Picture picture = getPictureForField(field);
     	ImageIcon imageIcon = pictureCache.get(picture.ordinal());
@@ -95,7 +96,7 @@ public class MapWindow extends JWindow {
     		imageIcon = new ImageIcon(ImageIO.read(file));
     		pictureCache.put(picture.ordinal(), imageIcon);
     	}
-    	
+
     	return imageIcon;
     }
 
@@ -198,8 +199,8 @@ public class MapWindow extends JWindow {
         SHUTTLE("shuttle.png"),
         ENEMY_SHUTTLE("enemy_shuttle.png"),
         // team mems
-        TEAM_MEMBER("enemy_team_mem.png"),
-        ENEMY_TEAM_MEMBER("team_mem.png"),
+        TEAM_MEMBER("team_mem.png"),
+        ENEMY_TEAM_MEMBER("enemy_team_mem.png"),
         // rock types
         OBSIDIAN("wall.png"),
         GRANITE("granite.png"),
