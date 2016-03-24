@@ -38,7 +38,7 @@ public abstract class AbstractLogicBot extends Bot {
 
     protected int turnsLeft;
 
-    private int unitNumber;
+    protected int unitNumber;
 
     public AbstractLogicBot(String name, String password, String endpointAddress) {
         super(name, password, endpointAddress);
@@ -250,10 +250,10 @@ public abstract class AbstractLogicBot extends Bot {
     protected boolean isMyTurn() {
         IsMyTurnResponse response = service.isMyTurn(FACTORY.createIsMyTurnRequest());
         CommonResp commonResp = response.getResult();
+        logToSystemOut(response, response.getClass());
         if (success(commonResp) && response.isIsYourTurn()) {
             handleCommonResponse(response.getResult());
             this.coords = this.mapCache.getUnitPosition(this.unitNumber);
-            logToSystemOut(response, response.getClass());
             return true;
         }
         return false;
@@ -262,7 +262,7 @@ public abstract class AbstractLogicBot extends Bot {
     public static void setTestMode(boolean testMode) {
         TEST_MODE = testMode;
     }
-    
+
     public static boolean isTestMode() {
         return TEST_MODE;
     }

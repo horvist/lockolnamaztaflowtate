@@ -13,9 +13,9 @@ import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.IMapCac
 public class HardBot extends AbstractLogicBot {
 
     protected boolean connectedToGame = false;
-    protected static final long TIME_INTERVAL = 1L;
+    protected static final long TIME_INTERVAL = 2000l;
 
-    private boolean[] escaped = new boolean[IMapCache.NUM_OF_UNITS];
+    private final boolean[] escaped = new boolean[IMapCache.NUM_OF_UNITS];
 
     public HardBot(String name, String password, String endpointAddress) {
         super(name, password, endpointAddress);
@@ -45,22 +45,25 @@ public class HardBot extends AbstractLogicBot {
                     Thread.sleep(TIME_INTERVAL);
                 }
             } catch (EndOfTurnException e) {
+                Thread.sleep(TIME_INTERVAL);
                 continue;
             } catch (Exception e) {
                 e.printStackTrace();
+                Thread.sleep(TIME_INTERVAL);
             }
         }
     }
 
     private void doSomething() throws Exception {
+        System.out.println("CURRENT UNIT: " + this.unitNumber);
         if (!escaped[this.getUnitNumber()]) {
-            if (ObjectType.ROCK.equals(this.mapCache.getField(this.mapCache.getShuttleExit()).getObjectType())) {
-                doAction(Actions.DRILL, mapCache.getShuttleExit());
-            }
-            doAction(Actions.MOVE, mapCache.getShuttleExit());
-            escaped[this.getUnitNumber()] = true;
+//            if (ObjectType.ROCK.equals(this.mapCache.getField(this.mapCache.getShuttleExit()).getObjectType())) {
+//                doAction(Actions.DRILL, mapCache.getShuttleExit());
+//            }
+//            doAction(Actions.MOVE, mapCache.getShuttleExit());
+//            escaped[this.getUnitNumber()] = true;
         }
-        doWatch();
+//        doWatch();
     }
 
     public static void main(String[] args) {
