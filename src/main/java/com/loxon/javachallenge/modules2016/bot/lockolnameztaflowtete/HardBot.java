@@ -13,7 +13,7 @@ import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.IMapCac
 public class HardBot extends AbstractLogicBot {
 
     protected boolean connectedToGame = false;
-    protected static final long TIME_INTERVAL = 2000l;
+    protected static final long TIME_INTERVAL = 150L;
 
     private final boolean[] escaped = new boolean[IMapCache.NUM_OF_UNITS];
 
@@ -51,6 +51,7 @@ public class HardBot extends AbstractLogicBot {
                 e.printStackTrace();
                 Thread.sleep(TIME_INTERVAL);
             }
+            Thread.sleep(TIME_INTERVAL);
         }
     }
 
