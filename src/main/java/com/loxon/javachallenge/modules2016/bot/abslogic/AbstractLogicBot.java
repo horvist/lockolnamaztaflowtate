@@ -128,17 +128,17 @@ public abstract class AbstractLogicBot extends Bot {
                 handleCommonResponse(commonResp);
             }
         } catch (Exception e) {
-            this.mapCache.revertChanges();
+//            this.mapCache.revertChanges();
             throw e;
         }
     }
 
     protected void login() {
         boolean success = false;
-        while(!success) {
+//        while(!success) {
             StartGameResponse response = service.startGame(FACTORY.createStartGameRequest());
             CommonResp commonResponse = response.getResult();
-            if (success(commonResponse)) {
+//            if (success(commonResponse)) {
                 if(TEST_MODE){
                     this.guiController.initAndStartGui(response.getSize());
                 }
@@ -148,9 +148,9 @@ public abstract class AbstractLogicBot extends Bot {
                 this.mapCache.placeShuttle(response.getUnits().get(0).getCord());
                 success = true;
                 handleCommonResponse(commonResponse);
-            }
+//            }
             logToSystemOut(response, response.getClass());
-        }
+//        }
     }
 
     protected void doRadar(final Collection<WsCoordinate> coordinates) throws Exception {
@@ -191,17 +191,20 @@ public abstract class AbstractLogicBot extends Bot {
         if (success(commonResp)) {
             handleCommonResponse(commonResp);
             this.mapCache.handleScouts(watchResponse.getScout());
+        } else {
+            logToSystemOut(watchResponse, watchResponse.getClass());
         }
 
-        logToSystemOut(watchResponse, watchResponse.getClass());
+//
     }
 
     private CommonResp doExplode(WsCoordinate targetCoordinate) throws Exception {
+        this.mapCache.checkFieldStructurable(targetCoordinate);
+
         if (this.expLeft == 0) {
             throw new RunOutOfExplosionsException("DoExplode");
         }
 
-        this.mapCache.structureField(targetCoordinate);
         if (!timeHelper.isInTime()) {
             throw new RunOutOfTimeException("DoDrill");
         }
@@ -211,14 +214,18 @@ public abstract class AbstractLogicBot extends Bot {
         explodeCellRequest.setUnit(this.unitNumber);
         ExplodeCellResponse response = service.explodeCell(explodeCellRequest);
 
-        logToSystemOut(response, response.getClass());
+        if (success(response.getResult())) {
+            this.mapCache.structureField(targetCoordinate);
+        } else {
+            logToSystemOut(response, response.getClass());
+        }
+
 
         return response.getResult();
     }
 
     private CommonResp doMove(WsCoordinate targetCoordinate) throws Exception {
         WsDirection wsDirection = this.mapCache.getDirection(this.coords, targetCoordinate);
-        this.mapCache.moveUnit(unitNumber, targetCoordinate);
         if (!timeHelper.isInTime()) {
             throw new RunOutOfTimeException("DoDrill");
         }
@@ -226,23 +233,30 @@ public abstract class AbstractLogicBot extends Bot {
         request.setDirection(wsDirection);
         request.setUnit(this.unitNumber);
         MoveBuilderUnitResponse response = service.moveBuilderUnit(request);
-
-        logToSystemOut(response, response.getClass());
+        if (success(response.getResult())) {
+            this.mapCache.moveUnit(unitNumber, targetCoordinate);
+        } else {
+            logToSystemOut(response, response.getClass());
+        }
 
         return response.getResult();
     }
 
     private CommonResp doDrill(WsCoordinate targetCoordinate) throws Exception {
-        this.mapCache.structureField(targetCoordinate);
         if (!timeHelper.isInTime()) {
             throw new RunOutOfTimeException("DoDrill");
         }
+
+        this.mapCache.checkFieldStructurable(targetCoordinate);
         StructureTunnelRequest request = FACTORY.createStructureTunnelRequest();
         request.setDirection(this.mapCache.getDirection(this.coords, targetCoordinate));
         request.setUnit(this.unitNumber);
         StructureTunnelResponse response = service.structureTunnel(request);
-
-        logToSystemOut(response, response.getClass());
+        if (success(response.getResult())) {
+            this.mapCache.structureField(targetCoordinate);
+        } else {
+            logToSystemOut(response, response.getClass());
+        }
 
         return response.getResult();
     }
@@ -250,7 +264,7 @@ public abstract class AbstractLogicBot extends Bot {
     protected boolean isMyTurn() {
         IsMyTurnResponse response = service.isMyTurn(FACTORY.createIsMyTurnRequest());
         CommonResp commonResp = response.getResult();
-        logToSystemOut(response, response.getClass());
+//        logToSystemOut(response, response.getClass());
         if (success(commonResp) && response.isIsYourTurn()) {
             handleCommonResponse(response.getResult());
             this.coords = this.mapCache.getUnitPosition(this.unitNumber);
@@ -273,7 +287,7 @@ public abstract class AbstractLogicBot extends Bot {
         this.turnsLeft = commonResp.getTurnsLeft();
         this.unitNumber = commonResp.getBuilderUnit();
         if(TEST_MODE){
-            guiController.refreshScore(commonResp.getScore(), this.apLeft, this.expLeft);
+            guiController.refreshScore(commonResp.getScore(), this.apLeft, this.expLeft, commonResp.getTurnsLeft());
         }
     }
 

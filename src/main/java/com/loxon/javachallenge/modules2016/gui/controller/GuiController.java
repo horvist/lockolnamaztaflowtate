@@ -18,7 +18,7 @@ public final class GuiController implements IGuiController {
 
     private ScoreWindow scoreWindow = null;
 
-    private IMapCache mapCache = Factory.createMap();
+    private final IMapCache mapCache = Factory.createMap();
 
     public static IGuiController getInstance() {
         if (instance == null) {
@@ -48,8 +48,8 @@ public final class GuiController implements IGuiController {
     }
 
     @Override
-    public void refreshScore(WsScore score, int actionPointLeft, int explLeft) {
-        scoreWindow.refreshScore(score, actionPointLeft, explLeft);
+    public void refreshScore(WsScore score, int actionPointLeft, int explLeft, int roundsLeft) {
+        scoreWindow.refreshScore(score, actionPointLeft, explLeft, roundsLeft);
 
     }
 }

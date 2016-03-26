@@ -1,5 +1,7 @@
 package com.loxon.javachallenge.modules2016.bot.abslogic;
 
+import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.ai.AI_1;
+import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.ai.IAI;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.IMapCache;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.MapCache;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.time.ITimeHelper;
@@ -24,5 +26,9 @@ public final class Factory {
 
     public static IGuiController createGuiController(){
         return GuiController.getInstance();
+    }
+
+    public static IAI createAI() {
+        return AI_1.getInstance();
     }
 }

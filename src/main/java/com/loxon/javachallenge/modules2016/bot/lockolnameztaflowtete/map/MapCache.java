@@ -129,6 +129,9 @@ public class MapCache implements IMapCache {
 		getMappedFieldForCoords(coord)
 			.setObjectType(ObjectType.ROCK)
 			.setTeam(FieldTeam.NO_MANS_LAND);
+		if (AbstractLogicBot.isTestMode()) {
+            Factory.createGuiController().updateElements(coord);
+        }
 	}
 
 	@Override
@@ -159,8 +162,21 @@ public class MapCache implements IMapCache {
 		}
 	}
 
+
+    @Override
+    public void checkFieldStructurable(WsCoordinate coord) throws StructureFieldException {
+        final Field mappedField = getMappedFieldForCoords(coord);
+
+        if (!(mappedField.getObjectType() == ObjectType.GRANITE
+                || mappedField.getObjectType() == ObjectType.ROCK
+                || (mappedField.getObjectType() == ObjectType.TUNNEL && mappedField.getTeam() == FieldTeam.ENEMY))) {
+            throw new StructureFieldException(getCoordErrorMessage("Can not structure field: " + mappedField.getObjectType().name(), coord, null));
+        }
+    }
+
 	@Override
 	public void structureField(WsCoordinate coord) throws StructureFieldException {
+	    checkFieldStructurable(coord);
 		final Field mappedField = getMappedFieldForCoords(coord);
 
 		addFieldToUncommittedChanges(coord, mappedField);
@@ -171,8 +187,10 @@ public class MapCache implements IMapCache {
 			mappedField
 				.setObjectType(ObjectType.TUNNEL)
 				.setTeam(FieldTeam.ALLY);
-		} else {
-			throw new StructureFieldException(getCoordErrorMessage("Can not structure field: " + mappedField.getObjectType().name(), coord, null));
+		} else if (mappedField.getObjectType() == ObjectType.TUNNEL && mappedField.getTeam() == FieldTeam.ENEMY) {
+		    mappedField
+                .setObjectType(ObjectType.ROCK)
+                .setTeam(FieldTeam.NO_MANS_LAND);
 		}
 	}
 
@@ -231,6 +249,9 @@ public class MapCache implements IMapCache {
 	public void handleScouts(Collection<Scouting> scoutings) {
 		for (Scouting scouting : scoutings) {
 			final Field field = getMappedFieldForCoords(scouting.getCord());
+			if ((field.getObjectType() == ObjectType.BUILDER_UNIT || field.getObjectType() == ObjectType.SHUTTLE)  && field.getTeam() == FieldTeam.ALLY) {
+			    continue;    // do not overwrite our team's unit with tunnel field
+			}
 			field.setObjectType(scouting.getObject());
 			if (field.getObjectType() == ObjectType.BUILDER_UNIT
 					|| field.getObjectType() == ObjectType.SHUTTLE
@@ -255,10 +276,14 @@ public class MapCache implements IMapCache {
 	}
 
 	private boolean isInMap(WsCoordinate target) {
-		return !(target.getX() > originalMapSize.getX()
-				|| target.getX() < 0
-				|| target.getY() > originalMapSize.getY()
-				|| target.getY() < 0);
+		return isInMap(target.getX(), target.getY());
+	}
+
+	private boolean isInMap(int x, int y) {
+	    return !(x > originalMapSize.getX()
+                || x < 0
+                || y > originalMapSize.getY()
+                || y < 0);
 	}
 
 	private Field getMappedFieldForCoords(WsCoordinate coord) {
@@ -266,13 +291,13 @@ public class MapCache implements IMapCache {
 	}
 
 	private Field getMappedFieldForCoords(int x, int y) {
-		Field field = map[x][y];
-		if (field == null) {
-			field = new Field();
-			map[x][y] = field;
-		}
+	    Field field = map[x][y];
+	    if (field == null) {
+	        field = new Field(x, y);
+	        map[x][y] = field;
+	    }
 
-		return field;
+	    return field;
 	}
 
 	private boolean coordEquals(WsCoordinate coord1, WsCoordinate coord2) {
@@ -282,11 +307,12 @@ public class MapCache implements IMapCache {
 	@Override
 	public void revertChanges() {
 		for (Entry<LocalCoords, Field> entry : uncommittedChanges.entrySet()) {
-			if (AbstractLogicBot.isTestMode()) {
-				Factory.createGuiController().updateElements(entry.getKey().getWsCoord());
-			}
 			resetFieldFromUncommittedChanges(entry.getKey(), entry.getValue());
+	         if (AbstractLogicBot.isTestMode()) {
+	             Factory.createGuiController().updateElements(entry.getKey().getWsCoord());
+	         }
 		}
+		uncommittedChanges.clear();
 	}
 
 	private void addFieldToUncommittedChanges(WsCoordinate coord, Field field) {
@@ -333,4 +359,36 @@ public class MapCache implements IMapCache {
 	public Field getField(WsCoordinate coord) {
 		return getMappedFieldForCoords(coord);
 	}
+
+    @Override
+    public Field getFieldForDirection(Field field, WsDirection direction) {
+        int x = field.getX();
+        int y = field.getY();
+
+        if (direction == WsDirection.DOWN){
+            y--;
+        } else if (direction == WsDirection.UP) {
+            y++;
+        } else if (direction == WsDirection.LEFT) {
+            x--;
+        } else if (direction == WsDirection.RIGHT) {
+            x++;
+        }
+
+        if (isInMap(x, y)) {
+            return getMappedFieldForCoords(x, y);
+        }
+
+        return null;
+    }
+
+    @Override
+    public Field getUnitField(int unit) {
+        return getMappedFieldForCoords(unitCoords[unit]);
+    }
+
+    @Override
+    public Field getShuttleExitField() {
+        return getMappedFieldForCoords(shuttleExit);
+    }
 }

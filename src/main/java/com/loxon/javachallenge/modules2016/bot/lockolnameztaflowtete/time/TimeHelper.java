@@ -7,7 +7,7 @@ public class TimeHelper implements ITimeHelper {
 
     private static volatile ITimeHelper instance = null;
 
-    protected static final long TIME_INTERVAL = 850L;
+    protected static final long TIME_INTERVAL = 750L;
 
     private long starttime = 0L;
 

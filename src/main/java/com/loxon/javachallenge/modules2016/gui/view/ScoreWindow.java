@@ -13,9 +13,9 @@ import java.awt.event.MouseMotionAdapter;
  */
 public class ScoreWindow extends JWindow {
 
-    private int X = 0;
+    private final int X = 0;
 
-    private int Y = 0;
+    private final int Y = 0;
 
     private JLabel peneltyPointLabel;
 
@@ -29,15 +29,17 @@ public class ScoreWindow extends JWindow {
 
     private JLabel explosionLeftLabel;
 
+    private JLabel roundsLeftLabel;
+
     public ScoreWindow() {
         init();
     }
 
     private void init() {
-        setBounds(0, 0, 350, 150);
+        setBounds(0, 0, 350, 200);
 
         JPanel resultPanel = new JPanel();
-        resultPanel.setLayout(new GridLayout(6, 2));
+        resultPanel.setLayout(new GridLayout(7, 2));
 
         bonusLabel = new JLabel("0", JLabel.CENTER);
         peneltyPointLabel = new JLabel("0", JLabel.CENTER);
@@ -45,10 +47,12 @@ public class ScoreWindow extends JWindow {
         totalPointLabel = new JLabel("0", JLabel.CENTER);
         actionPointLabel = new JLabel("0", JLabel.CENTER);
         explosionLeftLabel = new JLabel("0", JLabel.CENTER);
+        roundsLeftLabel = new JLabel("0", JLabel.CENTER);
+
 
         resultPanel.add(new JLabel("Total points", JLabel.RIGHT));
         resultPanel.add(totalPointLabel);
-        resultPanel.add(new JLabel("Penelty points", JLabel.RIGHT));
+        resultPanel.add(new JLabel("Penalty points", JLabel.RIGHT));
         resultPanel.add(peneltyPointLabel);
         resultPanel.add(new JLabel("Reward points", JLabel.RIGHT));
         resultPanel.add(rewardPointLabel);
@@ -58,8 +62,11 @@ public class ScoreWindow extends JWindow {
         resultPanel.add(actionPointLabel);
         resultPanel.add(new JLabel("Exploxions Left", JLabel.RIGHT));
         resultPanel.add(explosionLeftLabel);
+        resultPanel.add(new JLabel("Rounds Left", JLabel.RIGHT));
+        resultPanel.add(roundsLeftLabel);
 
         addMouseMotionListener(new MouseMotionAdapter() {
+            @Override
             public void mouseDragged(MouseEvent e) {
                 setLocation(getLocation().x + (e.getX() - X),
                         getLocation().y + (e.getY() - Y));
@@ -73,13 +80,14 @@ public class ScoreWindow extends JWindow {
         setVisible(true);
     }
 
-    public void refreshScore(WsScore score, int actionPointLeft, int explLeft) {
+    public void refreshScore(WsScore score, int actionPointLeft, int explLeft, int roundsLeft) {
         bonusLabel.setText(String.valueOf(score.getBonus()));
         peneltyPointLabel.setText(String.valueOf(score.getPenalty()));
         rewardPointLabel.setText(String.valueOf(score.getReward()));
         totalPointLabel.setText(String.valueOf(score.getTotal()));
         actionPointLabel.setText(String.valueOf(actionPointLeft));
         explosionLeftLabel.setText(String.valueOf(explLeft));
+        roundsLeftLabel.setText(String.valueOf(roundsLeft));
         revalidate();
     }
 
@@ -95,7 +103,7 @@ public class ScoreWindow extends JWindow {
             score.setPenalty(i++);
             score.setBonus(i++);
             score.setReward(i++);
-            sc.refreshScore(score, 10, 10);
+            sc.refreshScore(score, 10, 10, 10);
             Thread.sleep(1000L);
         }
     }

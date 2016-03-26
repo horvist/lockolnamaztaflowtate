@@ -31,6 +31,8 @@ public class MapWindow extends JWindow {
 
 	private final int X = 0;
     private final int Y = 0;
+    private int cols;
+    private int rows;
 
     private JLabel[][] map;
 
@@ -46,8 +48,8 @@ public class MapWindow extends JWindow {
 
     private void init(int xSize, int ySize) {
         classLoader = getClass().getClassLoader();
-        int cols = xSize + 1;
-        int rows = ySize + 1;
+        cols = xSize + 1;
+        rows = ySize + 1;
         this.map = new JLabel[rows][cols];
 
         JPanel mapPanel = new JPanel();
@@ -81,7 +83,7 @@ public class MapWindow extends JWindow {
 
     public void modifyField(final WsCoordinate coord, final Field field) {
         try {
-            map[coord.getY()][coord.getX()].setIcon(getImageIconForField(field));
+            map[rows - coord.getY() - 1][coord.getX()].setIcon(getImageIconForField(field));
             revalidate();
         } catch (Exception e) {
             System.out.println("Cannot change image here: x=" + coord.getX() + ", y=" + coord.getY());
@@ -158,7 +160,7 @@ public class MapWindow extends JWindow {
     }
 
     public static Field getRandomField() {
-        Field field = new Field();
+        Field field = new Field(0, 0);
         Random rn = new Random();
         int answer = rn.nextInt(3) + 1;
         if (answer == 1) {
