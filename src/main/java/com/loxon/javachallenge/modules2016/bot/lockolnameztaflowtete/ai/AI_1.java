@@ -1,8 +1,11 @@
 package com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.ai;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Stack;
 
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.ObjectType;
@@ -14,15 +17,20 @@ import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.IMapCac
 
 public class AI_1 implements IAI {
 
-    private static final int MAX_GRAPH_DEPTH = 12;
+    private static final int MAX_GRAPH_DEPTH = 8;
 
     private static final boolean CHECK_FOUND_SMALLEST_COST = false;
 
-    private static final int DEFAULT_COST = 8;
+    private static final int DEFAULT_COST = 10;
+
+    private static final int NUM_OF_UNITS = 4;
 
     private static AI_1 instance;
 
     private AI_1(){
+//        for (int i = 0; i < NUM_OF_UNITS; i++) {
+//            smallestCostFields.put(i, new Stack<Field>());  // stacks for unit movements should not be null, initialized in private constructor
+//        }
     }
 
     public static IAI getInstance() {
@@ -30,6 +38,7 @@ public class AI_1 implements IAI {
             synchronized (AI_1.class) {
                 if (instance == null) {
                     instance = new AI_1();
+
                 }
             }
         }
@@ -37,43 +46,84 @@ public class AI_1 implements IAI {
     }
 
     private int currentUnit = -1;
-    private final Map<Integer, Node> leafNodes = new HashMap<Integer, Node>();      // FIXME may use TreeSet?
+    private final Map<Integer, Node> leafNodes = new HashMap<Integer, Node>();      // NOTE: this is only used locally when a new graph is built, FIXME may use TreeSet?
+//    private final Map<Integer, Stack<Field>> smallestCostFields = new HashMap<Integer, Stack<Field>>();
     private final Stack<Field> smallestCostFields = new Stack<Field>();
-    private int foundSmallestCost = Integer.MAX_VALUE;
+    private int foundSmallestCost = Integer.MAX_VALUE;  // NOTE: this too is only used locally when a new graph is built, no thread concurrency is assumed!!!
+
+    @Override
+    public void lastMovementWasExecutedSuccessfully(int unit) {
+//        final Stack<Field> fieldsForUnit = smallestCostFields.get(unit);
+//        fieldsForUnit.pop();
+//        if (isOnlyUncoveredFieldsAreInBotsPath(unit)) {
+//            fieldsForUnit.clear();
+//        }
+        smallestCostFields.pop();
+    }
+
+//    private boolean isOnlyUncoveredFieldsAreInBotsPath(int unit) {
+//        for (Field field : smallestCostFields.get(unit)) {
+//            if (field.getObjectType() != null) {
+//                return false;
+//            }
+//        }
+//
+//        return true;
+//    }
+
+    private boolean isFieldInAnotherUnitsSteps(int unit, Field field) {
+//        for (Entry<Integer, Stack<Field>> entry : smallestCostFields.entrySet()) {
+//            if (entry.getKey() == unit) {
+//                continue;
+//            }
+//
+//            for (Field otherField : entry.getValue()) {
+//                if (otherField.equals(field)) {
+//                    return true;
+//                }
+//            }
+//        }
+
+        return false;
+    }
 
     @Override
     public Field getNextStepForUnit(int unit, IMapCache map) {
 //        final long time = System.currentTimeMillis();
 
-        if (currentUnit != unit || smallestCostFields.isEmpty()) {
+//        final Stack<Field> movementsForUnit = smallestCostFields.get(unit);
+        final Stack<Field> movementsForUnit = smallestCostFields;
+
+        if (currentUnit != unit || movementsForUnit.isEmpty()) {
             currentUnit = unit;
             foundSmallestCost = Integer.MAX_VALUE;
             leafNodes.clear();
-            smallestCostFields.clear();
+            movementsForUnit.clear();
         }
 
         if (map.isInStartPos(unit)) {
+            movementsForUnit.push(map.getShuttleExitField());
             return map.getShuttleExitField();
         }
 
-        if (smallestCostFields.isEmpty()) {
+        if (movementsForUnit.isEmpty()) {
             getPotentialStepsGraph(map.getUnitField(unit), null, MAX_GRAPH_DEPTH, map, 0, 0, true);
 
             Node node = leafNodes.get(Collections.min(leafNodes.keySet()));
 
             while (node != null) {
-                smallestCostFields.push(node.getField());
+                movementsForUnit.push(node.getField());
                 node = node.getParent();
             }
 
-            smallestCostFields.pop();  // NOTE: actual position of unit is in stack, popping it out
+            movementsForUnit.pop();  // NOTE: actual position of unit is in stack, popping it out
         }
 
 //        System.out.println(smallestCostFields);
 //        System.out.println("AI time: " + (System.currentTimeMillis() - time));
 
 
-        return smallestCostFields.pop();
+        return movementsForUnit.peek();   // peek only the next movement step, it will be removed when the successfull method is called
     }
 
     @SuppressWarnings("unused")
@@ -81,7 +131,7 @@ public class AI_1 implements IAI {
         if (CHECK_FOUND_SMALLEST_COST && currentCost >= foundSmallestCost) {
             return null;
         }
-        if (current == null || (parent != null && isInCurrentSteps(current, parent))) {
+        if (current == null || (parent != null && isInCurrentSteps(current, parent)) || isFieldInAnotherUnitsSteps(currentUnit, current)) {
             return null;
         }
 
@@ -107,8 +157,10 @@ public class AI_1 implements IAI {
             return currentNode;
         }
 
+        List<WsDirection> randomDirections = Arrays.asList(WsDirection.values());
+        Collections.shuffle(randomDirections); // shuffle directions to have more random movement for bots
 
-        for (WsDirection direction : WsDirection.values()) {
+        for (WsDirection direction : randomDirections) {
             Node newNode = getPotentialStepsGraph(map.getFieldForDirection(current, direction), currentNode, maxDepth, map, currentDepth + 1, currentCost, false);
             if (newNode != null) {
                 currentNode.addChild(newNode);

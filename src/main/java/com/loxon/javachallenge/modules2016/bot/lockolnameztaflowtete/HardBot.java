@@ -39,16 +39,11 @@ public class HardBot extends AbstractLogicBot {
         while (true) {
             try {
                 if (isMyTurn()) {
-                    this.timeHelper.setStartTime();
+                    this.timeHelper.setStartTime(unitNumber);
 
                     this.doSomething();
 
-                } else {
-                    Thread.sleep(TIME_INTERVAL);
                 }
-//            } catch (EndOfTurnException e) {
-//                Thread.sleep(TIME_INTERVAL);
-//                continue;
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -70,6 +65,7 @@ public class HardBot extends AbstractLogicBot {
         }
 
         doAction(Actions.MOVE, targetCoord);
+        Factory.createAI().lastMovementWasExecutedSuccessfully(unitNumber);  // if no exception happened until this point, movement is considered completed
 
 //        if (mapCache.isInStartPos(getUnitNumber())) {
 //            if (ObjectType.ROCK.equals(this.mapCache.getField(this.mapCache.getShuttleExit()).getObjectType())) {

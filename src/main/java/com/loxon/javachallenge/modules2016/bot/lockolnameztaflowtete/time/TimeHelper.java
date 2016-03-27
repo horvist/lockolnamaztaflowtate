@@ -7,9 +7,11 @@ public class TimeHelper implements ITimeHelper {
 
     private static volatile ITimeHelper instance = null;
 
-    protected static final long TIME_INTERVAL = 750L;
+    protected static final long TIME_INTERVAL = 820L;
 
     private long starttime = 0L;
+
+    private int currentUnit = -1;
 
     private TimeHelper(){
     }
@@ -31,7 +33,10 @@ public class TimeHelper implements ITimeHelper {
     }
 
     @Override
-    public void setStartTime() {
-        starttime = System.currentTimeMillis();
+    public void setStartTime(int unit) {
+        if (currentUnit != unit) {
+            currentUnit = unit;
+            starttime = System.currentTimeMillis();
+        }
     }
 }
