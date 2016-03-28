@@ -319,4 +319,11 @@ public abstract class AbstractLogicBot extends Bot {
         this.guiController = guiController;
     }
 
+    public CommonResp isMyTurnTest() {
+        IsMyTurnResponse response = service.isMyTurn(FACTORY.createIsMyTurnRequest());
+        CommonResp commonResp = response.getResult();
+        return commonResp;
+    }
+
+
 }
