@@ -6,6 +6,7 @@ import com.loxon.javachallenge.modules2016.bot.abslogic.AbstractLogicBot;
 import com.loxon.javachallenge.modules2016.bot.abslogic.Factory;
 import com.loxon.javachallenge.modules2016.bot.enums.Actions;
 import com.loxon.javachallenge.modules2016.bot.enums.FieldTeam;
+import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.RunOutOfActionPointsException;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.UnSuccessfulRequestException;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.Field;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.IMapCache;
@@ -75,21 +76,27 @@ public class HardBot extends AbstractLogicBot {
 //    }
 
     private void doSomething() throws Exception {
-        doWatch();
+        try {
+            doWatch();
 
-        final Field targetField = Factory.createAI().getNextStepForUnit(unitNumber, mapCache, turnsLeft);
-        final WsCoordinate targetCoord = targetField.getWsCoord();
+            final Field targetField = Factory.createAI().getNextStepForUnit(unitNumber, mapCache, turnsLeft);
+            final WsCoordinate targetCoord = targetField.getWsCoord();
 
-        if (targetField.getObjectType() == ObjectType.GRANITE || (targetField.getObjectType() == ObjectType.TUNNEL && targetField.getTeam() == FieldTeam.ENEMY)) {
-            doAction(Actions.EXPLODE, targetCoord);
-            doAction(Actions.DRILL, targetCoord);
-        } else if (targetField.getObjectType() == ObjectType.ROCK) {
-            doAction(Actions.DRILL, targetCoord);
+            if (targetField.getObjectType() == ObjectType.GRANITE || (targetField.getObjectType() == ObjectType.TUNNEL && targetField.getTeam() == FieldTeam.ENEMY)) {
+                doAction(Actions.EXPLODE, targetCoord);
+                doAction(Actions.DRILL, targetCoord);
+            } else if (targetField.getObjectType() == ObjectType.ROCK) {
+                doAction(Actions.DRILL, targetCoord);
+            }
+
+            doAction(Actions.MOVE, targetCoord);
+            Factory.createAI().lastMovementWasExecutedSuccessfully(unitNumber);  // if no exception happened until this point, movement is considered completed
+
+        } catch (RunOutOfActionPointsException e){
+            while(this.apLeft > 0){
+                doAction(Actions.RADAR, this.mapCache.getShuttleExit()); // we should check the field near our shuttle here.
+            }
         }
-
-        doAction(Actions.MOVE, targetCoord);
-        Factory.createAI().lastMovementWasExecutedSuccessfully(unitNumber);  // if no exception happened until this point, movement is considered completed
-
 //        if (mapCache.isInStartPos(getUnitNumber())) {
 //            if (ObjectType.ROCK.equals(this.mapCache.getField(this.mapCache.getShuttleExit()).getObjectType())) {
 //                doAction(Actions.DRILL, mapCache.getShuttleExit());
