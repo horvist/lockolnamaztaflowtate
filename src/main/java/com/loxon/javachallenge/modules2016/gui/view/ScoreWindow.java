@@ -1,7 +1,9 @@
 package com.loxon.javachallenge.modules2016.gui.view;
 
+import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.CommonResp;
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.ObjectFactory;
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.WsScore;
+import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.HardBot;
 
 import javax.swing.*;
 import java.awt.*;
@@ -95,16 +97,17 @@ public class ScoreWindow extends JWindow {
     public static void main(String[] args) throws Exception {
         ScoreWindow sc = new ScoreWindow();
         sc.showWindow();
-        ObjectFactory objectFactory = new ObjectFactory();
-        int i = 0;
-        while (i < 100) {
-            WsScore score = objectFactory.createWsScore();
-            score.setTotal(i++);
-            score.setPenalty(i++);
-            score.setBonus(i++);
-            score.setReward(i++);
-            sc.refreshScore(score, 10, 10, 10);
-            Thread.sleep(1000L);
+
+        HardBot hardBot = new HardBot(args[1], args[2], args[0]);
+
+        while (true) {
+            CommonResp commonResp = hardBot.isMyTurnTest();
+            sc.refreshScore(commonResp.getScore(), commonResp.getActionPointsLeft(), commonResp.getExplosivesLeft(), commonResp.getTurnsLeft());
+            if (commonResp.getTurnsLeft() == 0) {
+                System.exit(0);
+            }
+            Thread.sleep(151L);
         }
     }
+
 }
