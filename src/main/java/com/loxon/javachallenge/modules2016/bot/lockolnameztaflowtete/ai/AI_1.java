@@ -28,9 +28,9 @@ public class AI_1 implements IAI {
     private static AI_1 instance;
 
     private AI_1(){
-//        for (int i = 0; i < NUM_OF_UNITS; i++) {
-//            smallestCostFields.put(i, new Stack<Field>());  // stacks for unit movements should not be null, initialized in private constructor
-//        }
+        for (int i = 0; i < NUM_OF_UNITS; i++) {
+            smallestCostFields.put(i, new Stack<Field>());  // stacks for unit movements should not be null, initialized in private constructor
+        }
     }
 
     public static IAI getInstance() {
@@ -47,54 +47,60 @@ public class AI_1 implements IAI {
 
     private int currentUnit = -1;
     private final Map<Integer, Node> leafNodes = new HashMap<Integer, Node>();      // NOTE: this is only used locally when a new graph is built, FIXME may use TreeSet?
-//    private final Map<Integer, Stack<Field>> smallestCostFields = new HashMap<Integer, Stack<Field>>();
-    private final Stack<Field> smallestCostFields = new Stack<Field>();
+    private final Map<Integer, Stack<Field>> smallestCostFields = new HashMap<Integer, Stack<Field>>();
+//    private final Stack<Field> smallestCostFields = new Stack<Field>();
     private int foundSmallestCost = Integer.MAX_VALUE;  // NOTE: this too is only used locally when a new graph is built, no thread concurrency is assumed!!!
+
+    private void clearBotPaths() {
+        for (Stack<Field> path : smallestCostFields.values()) {
+            path.clear();
+        }
+    }
 
     @Override
     public void lastMovementWasExecutedSuccessfully(int unit) {
-//        final Stack<Field> fieldsForUnit = smallestCostFields.get(unit);
-//        fieldsForUnit.pop();
-//        if (isOnlyUncoveredFieldsAreInBotsPath(unit)) {
-//            fieldsForUnit.clear();
-//        }
-        smallestCostFields.pop();
+        final Stack<Field> fieldsForUnit = smallestCostFields.get(unit);
+        fieldsForUnit.pop();
+        if (isOnlyUncoveredFieldsAreInBotsPath(unit)) {
+            fieldsForUnit.clear();
+        }
+//        smallestCostFields.pop();
     }
 
-//    private boolean isOnlyUncoveredFieldsAreInBotsPath(int unit) {
-//        for (Field field : smallestCostFields.get(unit)) {
-//            if (field.getObjectType() != null) {
-//                return false;
-//            }
-//        }
-//
-//        return true;
-//    }
+    private boolean isOnlyUncoveredFieldsAreInBotsPath(int unit) {
+        for (Field field : smallestCostFields.get(unit)) {
+            if (field.getObjectType() != null) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 
     private boolean isFieldInAnotherUnitsSteps(int unit, Field field) {
-//        for (Entry<Integer, Stack<Field>> entry : smallestCostFields.entrySet()) {
-//            if (entry.getKey() == unit) {
-//                continue;
-//            }
-//
-//            for (Field otherField : entry.getValue()) {
-//                if (otherField.equals(field)) {
-//                    return true;
-//                }
-//            }
-//        }
+        for (Entry<Integer, Stack<Field>> entry : smallestCostFields.entrySet()) {
+            if (entry.getKey() == unit) {
+                continue;
+            }
+
+            for (Field otherField : entry.getValue()) {
+                if (otherField.equals(field)) {
+                    return true;
+                }
+            }
+        }
 
         return false;
     }
 
     @Override
-    public Field getNextStepForUnit(int unit, IMapCache map) {
+    public Field getNextStepForUnit(int unit, IMapCache map, int round) {
 //        final long time = System.currentTimeMillis();
 
-//        final Stack<Field> movementsForUnit = smallestCostFields.get(unit);
-        final Stack<Field> movementsForUnit = smallestCostFields;
+        final Stack<Field> movementsForUnit = smallestCostFields.get(unit);
+//        final Stack<Field> movementsForUnit = smallestCostFields;
 
-        if (currentUnit != unit || movementsForUnit.isEmpty()) {
+        if (currentUnit != unit || movementsForUnit.isEmpty() || round > 70) {
             currentUnit = unit;
             foundSmallestCost = Integer.MAX_VALUE;
             leafNodes.clear();
@@ -108,6 +114,12 @@ public class AI_1 implements IAI {
 
         if (movementsForUnit.isEmpty()) {
             getPotentialStepsGraph(map.getUnitField(unit), null, MAX_GRAPH_DEPTH, map, 0, 0, true);
+            if (leafNodes.isEmpty()) {
+                // this means that the current bot could not find a path because all the other bots blocked it's way...
+                // clearing other bot's stored paths
+                clearBotPaths();
+                getPotentialStepsGraph(map.getUnitField(unit), null, MAX_GRAPH_DEPTH, map, 0, 0, true);
+            }
 
             Node node = leafNodes.get(Collections.min(leafNodes.keySet()));
 
@@ -149,8 +161,6 @@ public class AI_1 implements IAI {
 
         if (currentDepth + 1 > maxDepth) {
             if (foundSmallestCost > currentCost) {
-//                optimalFieldsForCurrentUnit = fieldsInCurrentRoot;
-//                Field field = parent.getField()
                 foundSmallestCost = currentCost;
             }
             leafNodes.put(currentCost, currentNode);
@@ -160,15 +170,25 @@ public class AI_1 implements IAI {
         List<WsDirection> randomDirections = Arrays.asList(WsDirection.values());
         Collections.shuffle(randomDirections); // shuffle directions to have more random movement for bots
 
+        boolean foundMorePotentialLeafNodes = false;
+
         for (WsDirection direction : randomDirections) {
             Node newNode = getPotentialStepsGraph(map.getFieldForDirection(current, direction), currentNode, maxDepth, map, currentDepth + 1, currentCost, false);
             if (newNode != null) {
                 currentNode.addChild(newNode);
-            } else {
-                // if depth is smaller than the maximum depth, path should not be preferred more than a max_depth path
-                // adding additional cost
-                currentCost += (MAX_GRAPH_DEPTH - currentDepth) * DEFAULT_COST;
+                foundMorePotentialLeafNodes = true;
             }
+        }
+
+        if (!foundMorePotentialLeafNodes) {
+            // if depth is smaller than the maximum depth, path should not be preferred more than a max_depth path
+            // adding additional cost
+            currentCost += (MAX_GRAPH_DEPTH - currentDepth) * DEFAULT_COST;
+
+            if (foundSmallestCost > currentCost) {
+                foundSmallestCost = currentCost;
+            }
+            leafNodes.put(currentCost, currentNode);
         }
 
 
@@ -205,7 +225,7 @@ public class AI_1 implements IAI {
             if (team == FieldTeam.ALLY) {
                 cost = 30;  // inverse cost: cost of explode + drill + move + 2
             } else {
-                cost = 2;  // cost for exploding an enemy tunnel is the same as drilling a rock - because of exploration of possibilities to destroy enemy tunnels
+                cost = 4;  // cost for exploding an enemy tunnel is the same as drilling a rock - because of exploration of possibilities to destroy enemy tunnels
             }
         }
 

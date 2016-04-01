@@ -11,6 +11,7 @@ import com.loxon.javachallenge.modules2016.gui.controller.IGuiController;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+
 import java.io.PrintStream;
 import java.util.Collection;
 
@@ -261,17 +262,64 @@ public abstract class AbstractLogicBot extends Bot {
         return response.getResult();
     }
 
-    protected boolean isMyTurn() {
+
+    protected boolean isMyTurn() throws UnSuccessfulRequestException {
+//        long diff = System.currentTimeMillis() - lastIsMyTurnRequest;
+//        System.out.println("********************* diff: " + diff);
+//        lastIsMyTurnRequest = System.currentTimeMillis();
         IsMyTurnResponse response = service.isMyTurn(FACTORY.createIsMyTurnRequest());
         CommonResp commonResp = response.getResult();
 //        logToSystemOut(response, response.getClass());
-        if (success(commonResp) && response.isIsYourTurn()) {
-            handleCommonResponse(response.getResult());
-            this.coords = this.mapCache.getUnitPosition(this.unitNumber);
-            return true;
+        if (success(commonResp)) {
+            if(response.isIsYourTurn()) {
+                handleCommonResponse(response.getResult());
+                this.coords = this.mapCache.getUnitPosition(this.unitNumber);
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            try {
+                JAXBContext context = JAXBContext.newInstance(IsMyTurnResponse.class);
+                Marshaller m = context.createMarshaller();
+                //for pretty-print XML in JAXB
+                m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+
+                // Write to File
+                m.marshal(response, out);
+            } catch (JAXBException e) {
+                e.printStackTrace();
+            }
+            throw new UnSuccessfulRequestException("isMyTurn, milisecs: " + System.currentTimeMillis());
         }
-        return false;
     }
+
+    private static long lastIsMyTurnRequest = System.currentTimeMillis();
+
+
+//    protected boolean isMyTurn() throws UnSuccessfulRequestException {
+//        long diff = System.currentTimeMillis() - lastIsMyTurnRequest;
+//        System.out.println("********************* diff: " + diff);
+//        lastIsMyTurnRequest = System.currentTimeMillis();
+//        IsMyTurnResponse response = service.isMyTurn(FACTORY.createIsMyTurnRequest());
+//        CommonResp commonResp = response.getResult();
+//        if (success(commonResp)) {
+//            return true;
+//        } else {
+//            try {
+//                JAXBContext context = JAXBContext.newInstance(IsMyTurnResponse.class);
+//                Marshaller m = context.createMarshaller();
+//                //for pretty-print XML in JAXB
+//                m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+//
+//                // Write to File
+//                m.marshal(response, System.err);
+//            } catch (JAXBException e) {
+//                e.printStackTrace();
+//            }
+//            throw new UnSuccessfulRequestException("isMyTurn, milisecs: " + System.currentTimeMillis());
+//        }
+//    }
 
     public static void setTestMode(boolean testMode) {
         TEST_MODE = testMode;

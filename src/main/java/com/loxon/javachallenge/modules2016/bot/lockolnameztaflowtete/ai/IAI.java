@@ -5,7 +5,7 @@ import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.IMapCac
 
 public interface IAI {
 
-    public Field getNextStepForUnit(int unit, IMapCache map);
-
     public void lastMovementWasExecutedSuccessfully(int unit);
+
+    Field getNextStepForUnit(int unit, IMapCache map, int round);
 }
