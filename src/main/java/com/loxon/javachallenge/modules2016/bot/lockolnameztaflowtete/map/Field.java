@@ -20,10 +20,15 @@ public class Field {
 	private final int x;
 	private final int y;
 
+	private long lastUpdated;
+	private boolean wasOurs;
+
 	public Field(int x, int y) {
 		this.team = FieldTeam.NO_MANS_LAND;
 		this.x = x;
 		this.y = y;
+		this.wasOurs = false;
+		this.lastUpdated = System.currentTimeMillis();
 	}
 
 	public int getX() {
@@ -47,6 +52,7 @@ public class Field {
 
 	public Field setObjectType(ObjectType objectType) {
 		this.objectType = objectType;
+		this.lastUpdated = System.currentTimeMillis();
 		return this;
 	}
 
@@ -56,6 +62,10 @@ public class Field {
 
 	public Field setTeam(FieldTeam team) {
 		this.team = team;
+		if (team == FieldTeam.ALLY) {
+		    this.wasOurs = true;  // if a field once was ours...
+		}
+	    this.lastUpdated = System.currentTimeMillis();
 		return this;
 	}
 
@@ -102,22 +112,18 @@ public class Field {
 
     @Override
     public String toString() {
-//		String ret = "";
-//		if (objectType == null) {
-//			ret += "_";
-//		} else {
-//			ret += objectType.name().substring(0, 1);
-//		}
-//		if (team == null) {
-//			ret += "_";
-//		} else {
-//			ret += team.name().substring(0, 1);
-//		}
-//
-//		return ret;
-
 		return x + ":" + y;
 	}
 
+    public long getLastUpdated() {
+        return lastUpdated;
+    }
 
+    public boolean isWasOurs() {
+        return wasOurs;
+    }
+
+    public void setWasOurs(boolean wasOurs) {
+        this.wasOurs = wasOurs;
+    }
 }
