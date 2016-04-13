@@ -21,7 +21,13 @@ public class AI_1 implements IAI {
 
     private static final boolean CHECK_FOUND_SMALLEST_COST = false;
 
-    private static final int DEFAULT_COST = 10;
+    private static final double COST_REDUCE_RATIO = 0.5;    // if a field is considered more valuable than the other fields with the same type, it's cost should be multiplied with this reducing ratio
+    private static final double COST_GRANITE = 10.0;  // TODO change these constants to ActionCost usage
+    private static final double COST_ROCK = 2.0;
+    private static final double COST_OWN_TUNNEL = 30.0;
+    private static final double COST_ENEMY_TUNNEL = 3.0;
+    private static final double COST_DEFAULT = COST_GRANITE * COST_REDUCE_RATIO;
+
 
     private static final int NUM_OF_UNITS = 4;
 
@@ -46,10 +52,10 @@ public class AI_1 implements IAI {
     }
 
     private int currentUnit = -1;
-    private final Map<Integer, Node> leafNodes = new HashMap<Integer, Node>();      // NOTE: this is only used locally when a new graph is built, FIXME may use TreeSet?
-    private final Map<Integer, Stack<Field>> smallestCostFields = new HashMap<Integer, Stack<Field>>();
+    private final Map<Double, Node> leafNodes = new HashMap<Double, Node>();      // NOTE: this is only used locally when a new graph is built, FIXME may use TreeSet?
+    private final Map<Integer, Stack<Field>> smallestCostFields = new HashMap<Integer, Stack<Field>>(); // storing all the found smallest paths for bots, key is the bot's id
 //    private final Stack<Field> smallestCostFields = new Stack<Field>();
-    private int foundSmallestCost = Integer.MAX_VALUE;  // NOTE: this too is only used locally when a new graph is built, no thread concurrency is assumed!!!
+    private double foundSmallestCost = 999999;  // NOTE: this too is only used locally when a new graph is built, no thread concurrency is assumed!!!
 
     private void clearBotPaths() {
         for (Stack<Field> path : smallestCostFields.values()) {
@@ -102,7 +108,7 @@ public class AI_1 implements IAI {
 
         if (currentUnit != unit || movementsForUnit.isEmpty() || round > 70) {
             currentUnit = unit;
-            foundSmallestCost = Integer.MAX_VALUE;
+            foundSmallestCost = 999999;
             leafNodes.clear();
             movementsForUnit.clear();
         }
@@ -139,7 +145,7 @@ public class AI_1 implements IAI {
     }
 
     @SuppressWarnings("unused")
-    private Node getPotentialStepsGraph(Field current, Node parent, int maxDepth, IMapCache map, int currentDepth, int currentCost, boolean firstStep) {
+    private Node getPotentialStepsGraph(Field current, Node parent, int maxDepth, IMapCache map, int currentDepth, double currentCost, boolean firstStep) {
         if (CHECK_FOUND_SMALLEST_COST && currentCost >= foundSmallestCost) {
             return null;
         }
@@ -153,7 +159,7 @@ public class AI_1 implements IAI {
                 return null;
             }
 
-            currentCost += getCost(current);
+            currentCost += getCost(current, map);
         }
 
         Node currentNode = new Node(current, parent);
@@ -183,7 +189,7 @@ public class AI_1 implements IAI {
         if (!foundMorePotentialLeafNodes) {
             // if depth is smaller than the maximum depth, path should not be preferred more than a max_depth path
             // adding additional cost
-            currentCost += (MAX_GRAPH_DEPTH - currentDepth) * DEFAULT_COST;
+            currentCost += (MAX_GRAPH_DEPTH - currentDepth) * COST_DEFAULT;
 
             if (foundSmallestCost > currentCost) {
                 foundSmallestCost = currentCost;
@@ -206,7 +212,7 @@ public class AI_1 implements IAI {
         return false;
     }
 
-    private int getCost(Field field) {
+    private double getCost(Field field, IMapCache map) {
 //      action costs:
 
 //      <drill>8</drill>
@@ -219,25 +225,30 @@ public class AI_1 implements IAI {
 
         final ObjectType type = field.getObjectType();
         final FieldTeam team = field.getTeam();
-        int cost = DEFAULT_COST;   // default value for uncovered fields - granite's cost
+        double cost = COST_DEFAULT;   // default value for uncovered fields - granite's cost
 
         if (type == ObjectType.TUNNEL) {
             if (team == FieldTeam.ALLY) {
-                cost = 30;  // inverse cost: cost of explode + drill + move + 2
+                cost = COST_OWN_TUNNEL;  // inverse cost: cost of explode + drill + move + 2
+            } else if (field.isWasOurs()){
+                cost = COST_ENEMY_TUNNEL * COST_REDUCE_RATIO;
             } else {
-                cost = 4;  // cost for exploding an enemy tunnel is the same as drilling a rock - because of exploration of possibilities to destroy enemy tunnels
+                cost = COST_ENEMY_TUNNEL;  // cost for exploding an enemy tunnel is almost the same as drilling a rock - because of exploration of possibilities to destroy enemy tunnels
             }
         }
 
         if (type == ObjectType.ROCK) {
-            cost = 2; // inverse cost: cost of move
+            cost = COST_ROCK; // inverse cost: cost of move
         }
 
         if (type == ObjectType.GRANITE) {
-            cost = 10;    // inverse cost: cost of move + drill
+            cost = COST_GRANITE;    // inverse cost: cost of move + drill
         }
 
-        // field is not yet visible, default cost is applied
+        if (map.isFieldNextToOurField(field)) {
+            // if a field is next to our field, regardless of it's type it is considered to be more valuable
+            cost *= COST_REDUCE_RATIO;
+        }
 
         return cost;
     }

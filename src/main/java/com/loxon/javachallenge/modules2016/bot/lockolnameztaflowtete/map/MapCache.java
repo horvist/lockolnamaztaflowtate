@@ -392,4 +392,17 @@ public class MapCache implements IMapCache {
     public Field getShuttleExitField() {
         return getMappedFieldForCoords(shuttleExit);
     }
+
+    @Override
+    public boolean isFieldNextToOurField(Field field) {
+        for (WsDirection dir : WsDirection.values()) {
+            Field fieldForDir = getFieldForDirection(field, dir);
+            if (fieldForDir != null && field.getTeam() == FieldTeam.ALLY) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 }

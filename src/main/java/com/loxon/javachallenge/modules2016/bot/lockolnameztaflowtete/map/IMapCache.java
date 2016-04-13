@@ -56,4 +56,6 @@ public interface IMapCache {
 	public Field getField(WsCoordinate coord);
 
 	public Field getFieldForDirection(Field field, WsDirection direction);
+
+	public boolean isFieldNextToOurField(Field field);
 }
