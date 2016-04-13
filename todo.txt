@@ -3,32 +3,29 @@
   1. Ha a radarnak 0 a costja, akkor minden lépés elõtt radarozzuk be az aktuális unitot (hasonlóan a mostani watchoz). (vagy lehet az összeset is attól hogy nem az õ körük van? - ki kéne próbálni)
      Különben, ha a watchnak 0 a costja, akkor watcholjunk minden lépés elején.
      Ennek megfelelõen minden kör végén a nem 0 costú dologgal fogyasszuk el az actionpointokat.
-  4. Ha már úgyis olyan kurvasok mezõt fogunk ismerni, rámehetünk arra is, hogy átvágjuk az ellenfél területét, ha beleütköztünk.
+  2. Ha már úgyis olyan kurvasok mezõt fogunk ismerni, rámehetünk arra is, hogy átvágjuk az ellenfél területét, ha beleütköztünk.
      Ezt valahogy úgy kéne megoldani, hogy ha nekimentünk egy ellenfélnek, akkor az ebbe az irányba esõ mezõk costja kisebb legyen, mint a környezõké.
-  5. Field-re felvenni egy dirty flaget, ami a settereket hívva értelmesen változna csak akkor dirty-re, ha ténylegesen változott is valami tulajdonság.
-     Ha a bot útvonalában van dirty mezõ, számoltassunk új útvonalat neki!
-  6. Ha egy bot relatíve bazinagy saját területen van, akkor elõfordulhat hogy belátható körön belül nem jut ki belõle. Ezért bõvíteni kell az útvonal építést annyival, hogy
+  3. Ha egy bot relatíve bazinagy saját területen van, akkor elõfordulhat hogy belátható körön belül nem jut ki belõle. Ezért bõvíteni kell az útvonal építést annyival, hogy
      amíg 1 útvonalon csak a saját tunneljeinket találta meg, addig folyton menjen le még egy mélységet (pl. rekurzívan utaztatni egy boolean paramétert, ami ha false akkor mindenképp lemegy még további mélységekig a bot)
-  7. Átírni a jelenlegi konstans cost számokat valahogy a lekért ActionCost-ok értékeire dinamikusan.
+  4. Átírni a jelenlegi konstans cost számokat valahogy a lekért ActionCost-ok értékeire dinamikusan.
 
 
 
-
-
-
-
-
-+ korábbi ötlet:
-- unitonként eltérõ stratégia (AI-k dinamikus váltása): pl. egy unit esetleg rámehetne csak a rombolásra vagy újraépítkezésre
-	~ utolsó körökben egy bot csak rombolásra, egy csak az alagútrendszerünk hosszabbítására
-
-	
-	
-	
-	
-	
-	
 Elvileg kész:
-  2. Field-ben el van tárolva, hogy valaha a miénk volt-e az adott mezõ. Az olyan ellenfeles mezõ, ami a miénk volt hajdanán, érjen többet!
-  3. Az olyan field, ami közvetlenül már létezõ tunnelünk mellett van, valahogy arányosan érjen többet (pl. tökmind1 hogy ellenfél, rock, gránit -> szorozzuk be 0.5-tel a costot vagy ilyesmi)
+  1. Field-ben el van tárolva, hogy valaha a miénk volt-e az adott mezõ. Az olyan ellenfeles mezõ, ami a miénk volt hajdanán, érjen többet!
+  2. Az olyan field, ami közvetlenül már létezõ tunnelünk mellett van, valahogy arányosan érjen többet (pl. tökmind1 hogy ellenfél, rock, gránit -> szorozzuk be 0.5-tel a costot vagy ilyesmi)
   
+
+
+
+
++ korábbi felmerült ötletek:
+1. unitonként eltérõ stratégia (AI-k dinamikus váltása): pl. egy unit esetleg rámehetne csak a rombolásra vagy újraépítkezésre
+	~ utolsó körökben egy bot csak rombolásra, egy csak az alagútrendszerünk hosszabbítására
+2. Ez valószínûleg felesleges, de: Field-re felvenni egy dirty flaget, ami a settereket hívva értelmesen változna csak akkor dirty-re, ha ténylegesen változott is valami tulajdonság. Ha a bot útvonalában van dirty mezõ, számoltassunk új útvonalat neki!
+	
+	
+	
+	
+	
+	

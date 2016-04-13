@@ -68,8 +68,8 @@ public class DummyBot {
             for (int j = 0; j < 4; j++) {
                 // dummy movement
                 try {
-                    doMove(Factory.createAI().getNextStepForUnit(j, map, 75).getWsCoord(), j);
-                    doMove(Factory.createAI().getNextStepForUnit(j, map, 75).getWsCoord(), j);
+                    doMove(Factory.createAI().getNextStepForUnit(j, map, 75, null).getWsCoord(), j);
+                    doMove(Factory.createAI().getNextStepForUnit(j, map, 75, null).getWsCoord(), j);
                     Thread.sleep(2000);
                 } catch (Exception e) {
                     e.printStackTrace();

@@ -79,7 +79,7 @@ public class HardBot extends AbstractLogicBot {
         try {
             doWatch();
 
-            final Field targetField = Factory.createAI().getNextStepForUnit(unitNumber, mapCache, turnsLeft);
+            final Field targetField = Factory.createAI().getNextStepForUnit(unitNumber, mapCache, turnsLeft, this);
             final WsCoordinate targetCoord = targetField.getWsCoord();
 
             if (targetField.getObjectType() == ObjectType.GRANITE || (targetField.getObjectType() == ObjectType.TUNNEL && targetField.getTeam() == FieldTeam.ENEMY)) {

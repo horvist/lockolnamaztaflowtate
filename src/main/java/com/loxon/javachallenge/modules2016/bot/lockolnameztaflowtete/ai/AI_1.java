@@ -11,6 +11,7 @@ import java.util.Stack;
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.ObjectType;
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.WsDirection;
 import com.loxon.javachallenge.modules2016.bot.enums.FieldTeam;
+import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.IActionCostProvider;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.Field;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.IMapCache;
 
@@ -22,11 +23,12 @@ public class AI_1 implements IAI {
     private static final boolean CHECK_FOUND_SMALLEST_COST = false;
 
     private static final double COST_REDUCE_RATIO = 0.5;    // if a field is considered more valuable than the other fields with the same type, it's cost should be multiplied with this reducing ratio
-    private static final double COST_GRANITE = 10.0;  // TODO change these constants to ActionCost usage
-    private static final double COST_ROCK = 2.0;
-    private static final double COST_OWN_TUNNEL = 30.0;
-    private static final double COST_ENEMY_TUNNEL = 3.0;
-    private static final double COST_DEFAULT = COST_GRANITE * COST_REDUCE_RATIO;
+    private static final double COST_INCREASE_RATIO = 1.25;    // increasing the cost of a field by this ratio if needed
+    private double COST_GRANITE;
+    private double COST_ROCK;
+    private final double COST_OWN_TUNNEL = 30.0;    // hard coded value, bots are forced to drill/explode new fields, only walk on existing tunnel if necessary
+    private double COST_ENEMY_TUNNEL;
+    private double COST_DEFAULT;
 
 
     private static final int NUM_OF_UNITS = 4;
@@ -99,8 +101,21 @@ public class AI_1 implements IAI {
         return false;
     }
 
+    private void fillActionCosts(IActionCostProvider actionCostProvider) {
+        // inverse cost: cost of explode + drill + move
+        COST_GRANITE = actionCostProvider.getCostDrill() + actionCostProvider.getCostExplode() + actionCostProvider.getCostMove();
+
+        // cost of rock should be the smallest cost (it only needs to be drilled) - so bot will be forced to go for rocks when possible
+        COST_ROCK = actionCostProvider.getCostDrill() < actionCostProvider.getCostExplode() ? actionCostProvider.getCostDrill() : actionCostProvider.getCostExplode();
+
+        COST_ENEMY_TUNNEL = COST_ROCK * COST_INCREASE_RATIO;    // an enemy tunnel is considered to be slightly higher cost than drilling a rock
+
+        COST_DEFAULT = COST_GRANITE * COST_REDUCE_RATIO;    // the default cost will be between the granite and rock
+    }
+
     @Override
-    public Field getNextStepForUnit(int unit, IMapCache map, int round) {
+    public Field getNextStepForUnit(int unit, IMapCache map, int round, IActionCostProvider actionCostProvider) {
+
 //        final long time = System.currentTimeMillis();
 
         final Stack<Field> movementsForUnit = smallestCostFields.get(unit);
@@ -225,24 +240,20 @@ public class AI_1 implements IAI {
 
         final ObjectType type = field.getObjectType();
         final FieldTeam team = field.getTeam();
-        double cost = COST_DEFAULT;   // default value for uncovered fields - granite's cost
+        double cost = COST_DEFAULT;   // default value for uncovered fields
 
         if (type == ObjectType.TUNNEL) {
             if (team == FieldTeam.ALLY) {
-                cost = COST_OWN_TUNNEL;  // inverse cost: cost of explode + drill + move + 2
+                return COST_OWN_TUNNEL;
             } else if (field.isWasOurs()){
                 cost = COST_ENEMY_TUNNEL * COST_REDUCE_RATIO;
             } else {
-                cost = COST_ENEMY_TUNNEL;  // cost for exploding an enemy tunnel is almost the same as drilling a rock - because of exploration of possibilities to destroy enemy tunnels
+                cost = COST_ENEMY_TUNNEL;
             }
-        }
-
-        if (type == ObjectType.ROCK) {
-            cost = COST_ROCK; // inverse cost: cost of move
-        }
-
-        if (type == ObjectType.GRANITE) {
-            cost = COST_GRANITE;    // inverse cost: cost of move + drill
+        } else if (type == ObjectType.ROCK) {
+            cost = COST_ROCK;
+        } else if (type == ObjectType.GRANITE) {
+            cost = COST_GRANITE;
         }
 
         if (map.isFieldNextToOurField(field)) {

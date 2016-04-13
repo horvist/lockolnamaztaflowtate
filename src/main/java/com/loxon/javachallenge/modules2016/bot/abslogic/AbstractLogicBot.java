@@ -3,6 +3,7 @@ package com.loxon.javachallenge.modules2016.bot.abslogic;
 import com.loxon.javachallenge.modules2015.bot.core.Bot;
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.*;
 import com.loxon.javachallenge.modules2016.bot.enums.Actions;
+import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.IActionCostProvider;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.*;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.IMapCache;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.time.ITimeHelper;
@@ -18,7 +19,7 @@ import java.util.Collection;
 /**
  * @author kalmarr
  */
-public abstract class AbstractLogicBot extends Bot {
+public abstract class AbstractLogicBot extends Bot implements IActionCostProvider {
 
     private IGuiController guiController = null;
 
@@ -373,5 +374,39 @@ public abstract class AbstractLogicBot extends Bot {
         return commonResp;
     }
 
+    @Override
+    public int getNumberOfExplosives() {
+        return this.numberOfExplosives;
+    }
+
+    @Override
+    public int getNumberOfActionPoints() {
+        return this.numberOfActionPoints;
+    }
+
+    @Override
+    public int getCostDrill() {
+        return this.costDrill;
+    }
+
+    @Override
+    public int getCostMove() {
+        return this.costMove;
+    }
+
+    @Override
+    public int getCostRadar() {
+        return this.costRadar;
+    }
+
+    @Override
+    public int getCostExplode() {
+        return this.costExplode;
+    }
+
+    @Override
+    public int getCostWatch() {
+        return this.costWatch;
+    }
 
 }
