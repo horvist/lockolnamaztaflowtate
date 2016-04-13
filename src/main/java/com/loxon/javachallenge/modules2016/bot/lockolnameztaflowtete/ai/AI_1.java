@@ -23,7 +23,7 @@ public class AI_1 implements IAI {
     private static final boolean CHECK_FOUND_SMALLEST_COST = false;
 
     private static final double COST_REDUCE_RATIO = 0.5;    // if a field is considered more valuable than the other fields with the same type, it's cost should be multiplied with this reducing ratio
-    private static final double COST_INCREASE_RATIO = 1.25;    // increasing the cost of a field by this ratio if needed
+    private static final double COST_INCREASE_RATIO = 1.5;    // increasing the cost of a field by this ratio if needed
     private double COST_GRANITE;
     private double COST_ROCK;
     private final double COST_OWN_TUNNEL = 30.0;    // hard coded value, bots are forced to drill/explode new fields, only walk on existing tunnel if necessary

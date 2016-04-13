@@ -7,7 +7,6 @@
      Ezt valahogy úgy kéne megoldani, hogy ha nekimentünk egy ellenfélnek, akkor az ebbe az irányba esõ mezõk costja kisebb legyen, mint a környezõké.
   3. Ha egy bot relatíve bazinagy saját területen van, akkor elõfordulhat hogy belátható körön belül nem jut ki belõle. Ezért bõvíteni kell az útvonal építést annyival, hogy
      amíg 1 útvonalon csak a saját tunneljeinket találta meg, addig folyton menjen le még egy mélységet (pl. rekurzívan utaztatni egy boolean paramétert, ami ha false akkor mindenképp lemegy még további mélységekig a bot)
-  4. Átírni a jelenlegi konstans cost számokat valahogy a lekért ActionCost-ok értékeire dinamikusan.
 
 
 
@@ -23,7 +22,8 @@ Elvileg kész:
 1. unitonként eltérõ stratégia (AI-k dinamikus váltása): pl. egy unit esetleg rámehetne csak a rombolásra vagy újraépítkezésre
 	~ utolsó körökben egy bot csak rombolásra, egy csak az alagútrendszerünk hosszabbítására
 2. Ez valószínûleg felesleges, de: Field-re felvenni egy dirty flaget, ami a settereket hívva értelmesen változna csak akkor dirty-re, ha ténylegesen változott is valami tulajdonság. Ha a bot útvonalában van dirty mezõ, számoltassunk új útvonalat neki!
-	
+3. Átírni a jelenlegi konstans cost számokat valahogy a lekért ActionCost-ok értékeire dinamikusan.
+
 	
 	
 	
