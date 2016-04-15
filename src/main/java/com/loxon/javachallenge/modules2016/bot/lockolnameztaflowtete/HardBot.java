@@ -77,7 +77,7 @@ public class HardBot extends AbstractLogicBot {
 
     private void doSomething() throws Exception {
         try {
-            doWatch();
+            doExplore();
 
             final Field targetField = Factory.createAI().getNextStepForUnit(unitNumber, mapCache, turnsLeft, this);
             final WsCoordinate targetCoord = targetField.getWsCoord();
@@ -93,23 +93,11 @@ public class HardBot extends AbstractLogicBot {
             Factory.createAI().lastMovementWasExecutedSuccessfully(unitNumber);  // if no exception happened until this point, movement is considered completed
 
         } catch (RunOutOfActionPointsException e){
-            while(this.apLeft > 0){
-                doAction(Actions.RADAR, this.mapCache.getShuttleExit()); // we should check the field near our shuttle here.
-            }
+            doUseRemainingActionPoints();
         }
-//        if (mapCache.isInStartPos(getUnitNumber())) {
-//            if (ObjectType.ROCK.equals(this.mapCache.getField(this.mapCache.getShuttleExit()).getObjectType())) {
-//                doAction(Actions.DRILL, mapCache.getShuttleExit());
-//            }
-//            if (ObjectType.TUNNEL.equals(this.mapCache.getField(mapCache.getShuttleExit()).getObjectType())
-//                    && FieldTeam.ALLY.equals(this.mapCache.getField(mapCache.getShuttleExit()).getTeam())) {
-//                doAction(Actions.MOVE, mapCache.getShuttleExit());
-//            }
-//            escaped[this.getUnitNumber()] = true;
-//        } else {
-//        }
-//        doWatch();
     }
+
+
 
     public static void main(String[] args) {
         HardBot hardBot = new HardBot(args[1], args[2], args[0]);

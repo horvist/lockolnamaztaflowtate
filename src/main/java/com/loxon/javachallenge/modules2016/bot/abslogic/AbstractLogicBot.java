@@ -172,9 +172,36 @@ public abstract class AbstractLogicBot extends Bot implements IActionCostProvide
         if (success(commonResp)) {
             handleCommonResponse(commonResp);
             this.mapCache.handleScouts(radarResponse.getScout());
+        } else {
+            logToSystemOut(radarResponse, radarResponse.getClass());
         }
+    }
 
-        logToSystemOut(radarResponse, radarResponse.getClass());
+    /**
+     * Uses radar or watch function, depending on their cost (which one is free) to discover the fields around the current unit.
+     * @throws Exception
+     */
+    protected void doExplore() throws Exception {
+        if (getActionCost(Actions.RADAR) == 0) {
+            doRadar(this.mapCache.getRadarableCoordinatesForUnit(unitNumber));
+        } else {
+            doWatch();
+        }
+    }
+
+    /**
+     * Does nothing special, only uses all the remaining action points if the round should be ended.
+     * Uses radar or watch, depending on their cost (which one is NOT free)
+     * @throws Exception
+     */
+    protected void doUseRemainingActionPoints() throws Exception {
+        while(this.apLeft > 0){
+            if (getActionCost(Actions.RADAR) > 0) {
+                doAction(Actions.RADAR, this.mapCache.getShuttleExit()); // we should check the field near our shuttle here.
+            } else {
+                doWatch();
+            }
+        }
     }
 
     protected void doWatch() throws Exception {

@@ -2,8 +2,10 @@ package com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.ObjectType;
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.Scouting;
@@ -394,15 +396,44 @@ public class MapCache implements IMapCache {
     }
 
     @Override
-    public boolean isFieldNextToOurField(Field field) {
+    public int getNumOfOurFieldsNextToField(Field field) {
+        int ret = 0;
         for (WsDirection dir : WsDirection.values()) {
             Field fieldForDir = getFieldForDirection(field, dir);
             if (fieldForDir != null && field.getTeam() == FieldTeam.ALLY) {
-                return true;
+                ret++;
             }
         }
 
-        return false;
+        return ret;
+    }
+
+    @Override
+    public Collection<WsCoordinate> getRadarableCoordinatesForUnit(int unit) {
+        WsCoordinate unitCoord = getUnitPosition(unit);
+        final int x = unitCoord.getX();
+        final int y = unitCoord.getY();
+        Set<WsCoordinate> radarableCoords = new HashSet<WsCoordinate>();
+
+        for (int i = -3; i <= 3; i++) {
+            for (int j = -3; j <= 3; j++) {
+                if (i == 0 && j == 0) {
+                    continue;
+                }
+
+                try {
+                    final Field field = getMappedFieldForCoords(x + i, y + j);
+                    if (field != null) {
+                        radarableCoords.add(field.getWsCoord());
+                    }
+                } catch (Exception e) {
+                    // do nothing, probably index out of bounds or something, not too sophisticated exception handling :(
+                }
+
+            }
+        }
+
+        return radarableCoords;
     }
 
 }

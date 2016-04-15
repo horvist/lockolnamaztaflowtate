@@ -244,7 +244,7 @@ public class AI_1 implements IAI {
 
         if (type == ObjectType.TUNNEL) {
             if (team == FieldTeam.ALLY) {
-                return COST_OWN_TUNNEL;
+                return COST_OWN_TUNNEL;     // returning cost if own tunnel is found, this cost should not be reduced in further steps of this method!
             } else if (field.isWasOurs()){
                 cost = COST_ENEMY_TUNNEL * COST_REDUCE_RATIO;
             } else {
@@ -256,9 +256,10 @@ public class AI_1 implements IAI {
             cost = COST_GRANITE;
         }
 
-        if (map.isFieldNextToOurField(field)) {
+        final int numOfOurFieldsNextToField = map.getNumOfOurFieldsNextToField(field);
+        if (numOfOurFieldsNextToField > 0) {
             // if a field is next to our field, regardless of it's type it is considered to be more valuable
-            cost *= COST_REDUCE_RATIO;
+            cost *= (1 / (numOfOurFieldsNextToField * numOfOurFieldsNextToField));  // nééééégyzetesen
         }
 
         return cost;

@@ -7,7 +7,7 @@
      Ezt valahogy úgy kéne megoldani, hogy ha nekimentünk egy ellenfélnek, akkor az ebbe az irányba esõ mezõk costja kisebb legyen, mint a környezõké.
   3. Ha egy bot relatíve bazinagy saját területen van, akkor elõfordulhat hogy belátható körön belül nem jut ki belõle. Ezért bõvíteni kell az útvonal építést annyival, hogy
      amíg 1 útvonalon csak a saját tunneljeinket találta meg, addig folyton menjen le még egy mélységet (pl. rekurzívan utaztatni egy boolean paramétert, ami ha false akkor mindenképp lemegy még további mélységekig a bot)
-
+  4. Még lehetne finomhangolni ezt a területünk melletti mezõk dolgot, pl. shuttle-höz közeli mezõk arányosan többet érjenek.
 
 
 Elvileg kész:

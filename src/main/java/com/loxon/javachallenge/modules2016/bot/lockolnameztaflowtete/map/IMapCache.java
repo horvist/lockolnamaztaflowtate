@@ -57,5 +57,7 @@ public interface IMapCache {
 
 	public Field getFieldForDirection(Field field, WsDirection direction);
 
-	public boolean isFieldNextToOurField(Field field);
+	public int getNumOfOurFieldsNextToField(Field field);
+
+	public Collection<WsCoordinate> getRadarableCoordinatesForUnit(int unit);
 }
