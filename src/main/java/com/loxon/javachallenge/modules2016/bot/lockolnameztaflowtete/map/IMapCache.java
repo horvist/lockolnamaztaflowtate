@@ -60,4 +60,6 @@ public interface IMapCache {
 	public int getNumOfOurFieldsNextToField(Field field);
 
 	public Collection<WsCoordinate> getRadarableCoordinatesForUnit(int unit);
+
+	public double getFieldDistanceFromShuttle(Field field);
 }

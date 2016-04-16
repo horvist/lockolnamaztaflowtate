@@ -193,20 +193,20 @@ public class MapWindow extends JWindow {
     }
 
     private enum Picture {
-        UNKNOWN_FIELD("unknown_field.png"),
+        UNKNOWN_FIELD("pictures/unknown_field.png"),
         // tunnels
-        TUNNEL("tunnel.png"),
-        ENEMY_TUNNEL("enemy_tunnel.png"),
+        TUNNEL("pictures/tunnel.png"),
+        ENEMY_TUNNEL("pictures/enemy_tunnel.png"),
         //shuttle
-        SHUTTLE("shuttle.png"),
-        ENEMY_SHUTTLE("enemy_shuttle.png"),
+        SHUTTLE("pictures/shuttle.png"),
+        ENEMY_SHUTTLE("pictures/enemy_shuttle.png"),
         // team mems
-        TEAM_MEMBER("team_mem.png"),
-        ENEMY_TEAM_MEMBER("enemy_team_mem.png"),
+        TEAM_MEMBER("pictures/team_mem.png"),
+        ENEMY_TEAM_MEMBER("pictures/enemy_team_mem.png"),
         // rock types
-        OBSIDIAN("wall.png"),
-        GRANITE("granite.png"),
-        CRYSTAL("crystal.png");
+        OBSIDIAN("pictures/wall.png"),
+        GRANITE("pictures/granite.png"),
+        CRYSTAL("pictures/crystal.png");
 
         private String picture;
 

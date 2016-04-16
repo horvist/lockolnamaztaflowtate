@@ -1,20 +1,23 @@
+Gen algokhoz szükséges cuccok:
+    - propertybõl töltjük a costokat, beállításokat, minden fost, hogy az alg majd tudja értelmesen módosítgatni a futások közötti beállításokat
+    - megkéne határozni, hogy akkor pontosan mit akarunk súlyozgatni. (most nem teljesen vágom, hogy pl miért nem voltak állítva acostok defualt értékei)
+
 
 Új ismeretek ismeretében:
-  1. Ha a radarnak 0 a costja, akkor minden lépés elõtt radarozzuk be az aktuális unitot (hasonlóan a mostani watchoz). (vagy lehet az összeset is attól hogy nem az õ körük van? - ki kéne próbálni)
-     Különben, ha a watchnak 0 a costja, akkor watcholjunk minden lépés elején.
-     Ennek megfelelõen minden kör végén a nem 0 costú dologgal fogyasszuk el az actionpointokat.
   2. Ha már úgyis olyan kurvasok mezõt fogunk ismerni, rámehetünk arra is, hogy átvágjuk az ellenfél területét, ha beleütköztünk.
      Ezt valahogy úgy kéne megoldani, hogy ha nekimentünk egy ellenfélnek, akkor az ebbe az irányba esõ mezõk costja kisebb legyen, mint a környezõké.
   3. Ha egy bot relatíve bazinagy saját területen van, akkor elõfordulhat hogy belátható körön belül nem jut ki belõle. Ezért bõvíteni kell az útvonal építést annyival, hogy
      amíg 1 útvonalon csak a saját tunneljeinket találta meg, addig folyton menjen le még egy mélységet (pl. rekurzívan utaztatni egy boolean paramétert, ami ha false akkor mindenképp lemegy még további mélységekig a bot)
-  4. Még lehetne finomhangolni ezt a területünk melletti mezõk dolgot, pl. shuttle-höz közeli mezõk arányosan többet érjenek.
+
 
 
 Elvileg kész:
   1. Field-ben el van tárolva, hogy valaha a miénk volt-e az adott mezõ. Az olyan ellenfeles mezõ, ami a miénk volt hajdanán, érjen többet!
   2. Az olyan field, ami közvetlenül már létezõ tunnelünk mellett van, valahogy arányosan érjen többet (pl. tökmind1 hogy ellenfél, rock, gránit -> szorozzuk be 0.5-tel a costot vagy ilyesmi)
-  
-
+  3. Ha a radarnak 0 a costja, akkor minden lépés elõtt radarozzuk be az aktuális unitot (hasonlóan a mostani watchoz). (vagy lehet az összeset is attól hogy nem az õ körük van? - ki kéne próbálni)
+       Különben, ha a watchnak 0 a costja, akkor watcholjunk minden lépés elején.
+       Ennek megfelelõen minden kör végén a nem 0 costú dologgal fogyasszuk el az actionpointokat.
+  4. Még lehetne finomhangolni ezt a területünk melletti mezõk dolgot, pl. shuttle-höz közeli mezõk arányosan többet érjenek.
 
 
 

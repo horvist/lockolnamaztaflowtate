@@ -10,6 +10,7 @@ import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.UnSuccessfulRequestException;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.Field;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.IMapCache;
+import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.prop.PropertyHolder;
 
 /**
  * @author kalmarr
@@ -17,9 +18,8 @@ import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.IMapCac
 public class HardBot extends AbstractLogicBot {
 
     protected boolean connectedToGame = false;
-    protected static final long TIME_INTERVAL = 201L;
 
-    private final boolean[] escaped = new boolean[IMapCache.NUM_OF_UNITS];
+    protected static final long TIME_INTERVAL = PropertyHolder.getTimeBetweenIsMyTurn();
 
     public HardBot(String name, String password, String endpointAddress) {
         super(name, password, endpointAddress);
@@ -54,26 +54,6 @@ public class HardBot extends AbstractLogicBot {
             Thread.sleep(TIME_INTERVAL);
         }
     }
-
-
-//    @Override
-//    protected void process() throws InterruptedException {
-//        if (!connectedToGame) {
-//            this.login();
-//            connectedToGame = true;
-//            Thread.sleep(500l);
-//        }
-//
-//        while (true) {
-//            try {
-//                isMyTurn();
-//            } catch (UnSuccessfulRequestException e) {
-//                e.printStackTrace();
-//            }
-//
-//            Thread.sleep(2150l);
-//        }
-//    }
 
     private void doSomething() throws Exception {
         try {

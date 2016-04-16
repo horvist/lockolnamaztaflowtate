@@ -436,4 +436,10 @@ public class MapCache implements IMapCache {
         return radarableCoords;
     }
 
+    @Override
+    public double getFieldDistanceFromShuttle(Field field) {
+        int xDiff = (getShuttleCoord().getX() - field.getX());
+        int yDiff = (getShuttleCoord().getY() - field.getY());
+        return Math.sqrt((xDiff * xDiff) + (yDiff * yDiff));
+    }
 }

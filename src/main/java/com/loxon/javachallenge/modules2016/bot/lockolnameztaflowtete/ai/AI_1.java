@@ -14,19 +14,20 @@ import com.loxon.javachallenge.modules2016.bot.enums.FieldTeam;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.IActionCostProvider;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.Field;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.IMapCache;
+import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.prop.PropertyHolder;
 
 
 public class AI_1 implements IAI {
 
-    private static final int MAX_GRAPH_DEPTH = 8;
+    private static final int MAX_GRAPH_DEPTH = PropertyHolder.getGraphDept();
 
-    private static final boolean CHECK_FOUND_SMALLEST_COST = false;
+    private static final boolean CHECK_FOUND_SMALLEST_COST = PropertyHolder.isCheckFoundSmallestCost();
 
-    private static final double COST_REDUCE_RATIO = 0.5;    // if a field is considered more valuable than the other fields with the same type, it's cost should be multiplied with this reducing ratio
-    private static final double COST_INCREASE_RATIO = 1.5;    // increasing the cost of a field by this ratio if needed
+    private static final double COST_REDUCE_RATIO = PropertyHolder.getReduceRatio();    // if a field is considered more valuable than the other fields with the same type, it's cost should be multiplied with this reducing ratio
+    private static final double COST_INCREASE_RATIO = PropertyHolder.getIncRatio();    // increasing the cost of a field by this ratio if needed
     private double COST_GRANITE;
     private double COST_ROCK;
-    private final double COST_OWN_TUNNEL = 30.0;    // hard coded value, bots are forced to drill/explode new fields, only walk on existing tunnel if necessary
+    private final double COST_OWN_TUNNEL = PropertyHolder.getCostOwnTunnel();    // hard coded value, bots are forced to drill/explode new fields, only walk on existing tunnel if necessary
     private double COST_ENEMY_TUNNEL;
     private double COST_DEFAULT;
 
@@ -35,14 +36,14 @@ public class AI_1 implements IAI {
 
     private static AI_1 instance;
 
-    private AI_1(){
+    private AI_1() {
         for (int i = 0; i < NUM_OF_UNITS; i++) {
-            smallestCostFields.put(i, new Stack<Field>());  // stacks for unit movements should not be null, initialized in private constructor
+            smallestCostFields.put(i, new Stack<>());  // stacks for unit movements should not be null, initialized in private constructor
         }
     }
 
     public static IAI getInstance() {
-        if(instance == null){
+        if (instance == null) {
             synchronized (AI_1.class) {
                 if (instance == null) {
                     instance = new AI_1();
@@ -56,7 +57,7 @@ public class AI_1 implements IAI {
     private int currentUnit = -1;
     private final Map<Double, Node> leafNodes = new HashMap<Double, Node>();      // NOTE: this is only used locally when a new graph is built, FIXME may use TreeSet?
     private final Map<Integer, Stack<Field>> smallestCostFields = new HashMap<Integer, Stack<Field>>(); // storing all the found smallest paths for bots, key is the bot's id
-//    private final Stack<Field> smallestCostFields = new Stack<Field>();
+    //    private final Stack<Field> smallestCostFields = new Stack<Field>();
     private double foundSmallestCost = 999999;  // NOTE: this too is only used locally when a new graph is built, no thread concurrency is assumed!!!
 
     private void clearBotPaths() {
@@ -230,11 +231,11 @@ public class AI_1 implements IAI {
     private double getCost(Field field, IMapCache map) {
 //      action costs:
 
-//      <drill>8</drill>
-//      <move>2</move>
-//      <radar>1</radar>
-//      <explode>6</explode>
-//      <watch>0</watch>
+//      <drill>8</drill>   <drill>6</drill>
+//      <move>2</move>     <move>2</move>
+//      <radar>1</radar>   <radar>0</radar>
+//      <explode>6</explode>  <explode>3</explode>
+//      <watch>0</watch>   <watch>1</watch>
 //      <availableActionPoints>20</availableActionPoints>
 //      <availableExplosives>80</availableExplosives>
 
@@ -244,8 +245,8 @@ public class AI_1 implements IAI {
 
         if (type == ObjectType.TUNNEL) {
             if (team == FieldTeam.ALLY) {
-                return COST_OWN_TUNNEL;     // returning cost if own tunnel is found, this cost should not be reduced in further steps of this method!
-            } else if (field.isWasOurs()){
+                cost = COST_OWN_TUNNEL;
+            } else if (field.isWasOurs()) {
                 cost = COST_ENEMY_TUNNEL * COST_REDUCE_RATIO;
             } else {
                 cost = COST_ENEMY_TUNNEL;
@@ -256,12 +257,20 @@ public class AI_1 implements IAI {
             cost = COST_GRANITE;
         }
 
-        final int numOfOurFieldsNextToField = map.getNumOfOurFieldsNextToField(field);
-        if (numOfOurFieldsNextToField > 0) {
-            // if a field is next to our field, regardless of it's type it is considered to be more valuable
-            cost *= (1 / (numOfOurFieldsNextToField * numOfOurFieldsNextToField));  // nééééégyzetesen
+        if(!(type == ObjectType.TUNNEL && team == FieldTeam.ALLY)) {
+            final int numOfOurFieldsNextToField = map.getNumOfOurFieldsNextToField(field);
+            if (numOfOurFieldsNextToField > 0) {
+                // if a field is next to our field, regardless of it's type it is considered to be more valuable
+                cost *= (1 / (numOfOurFieldsNextToField * numOfOurFieldsNextToField));  // nééééégyzetesen
+            }
+        }
+
+        // fields closer to the shuttle are move valuable?
+        if (PropertyHolder.isFieldsWeighting()) {
+            cost *= map.getFieldDistanceFromShuttle(field);
         }
 
         return cost;
     }
+
 }

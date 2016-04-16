@@ -1,5 +1,7 @@
 package com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.time;
 
+import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.prop.PropertyHolder;
+
 /**
  * @author kalmarr
  */
@@ -7,7 +9,7 @@ public class TimeHelper implements ITimeHelper {
 
     private static volatile ITimeHelper instance = null;
 
-    protected static final long TIME_INTERVAL = 820L;
+    protected static final long TIME_INTERVAL = PropertyHolder.getOneRoundTime();
 
     private long starttime = 0L;
 

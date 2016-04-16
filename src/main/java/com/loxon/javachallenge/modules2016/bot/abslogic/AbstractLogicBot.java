@@ -6,6 +6,7 @@ import com.loxon.javachallenge.modules2016.bot.enums.Actions;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.IActionCostProvider;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.*;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.IMapCache;
+import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.MapCache;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.time.ITimeHelper;
 import com.loxon.javachallenge.modules2016.gui.controller.IGuiController;
 
@@ -15,6 +16,7 @@ import javax.xml.bind.Marshaller;
 
 import java.io.PrintStream;
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * @author kalmarr
@@ -130,29 +132,22 @@ public abstract class AbstractLogicBot extends Bot implements IActionCostProvide
                 handleCommonResponse(commonResp);
             }
         } catch (Exception e) {
-//            this.mapCache.revertChanges();
             throw e;
         }
     }
 
     protected void login() {
-        boolean success = false;
-//        while(!success) {
-            StartGameResponse response = service.startGame(FACTORY.createStartGameRequest());
-            CommonResp commonResponse = response.getResult();
-//            if (success(commonResponse)) {
-                if(TEST_MODE){
-                    this.guiController.initAndStartGui(response.getSize());
-                }
-                this.mapCache.initMap(response.getSize());
-                initShuttleAndExitPos(); // init shuttle positions
-                initActionCosts(); // init cost informations
-                this.mapCache.placeShuttle(response.getUnits().get(0).getCord());
-                success = true;
-                handleCommonResponse(commonResponse);
-//            }
-            logToSystemOut(response, response.getClass());
-//        }
+        StartGameResponse response = service.startGame(FACTORY.createStartGameRequest());
+        CommonResp commonResponse = response.getResult();
+        if (TEST_MODE) {
+            this.guiController.initAndStartGui(response.getSize());
+        }
+        this.mapCache.initMap(response.getSize());
+        initShuttleAndExitPos(); // init shuttle positions
+        initActionCosts(); // init cost informations
+        this.mapCache.placeShuttle(response.getUnits().get(0).getCord());
+        handleCommonResponse(commonResponse);
+        logToSystemOut(response, response.getClass());
     }
 
     protected void doRadar(final Collection<WsCoordinate> coordinates) throws Exception {
@@ -179,6 +174,7 @@ public abstract class AbstractLogicBot extends Bot implements IActionCostProvide
 
     /**
      * Uses radar or watch function, depending on their cost (which one is free) to discover the fields around the current unit.
+     *
      * @throws Exception
      */
     protected void doExplore() throws Exception {
@@ -192,10 +188,11 @@ public abstract class AbstractLogicBot extends Bot implements IActionCostProvide
     /**
      * Does nothing special, only uses all the remaining action points if the round should be ended.
      * Uses radar or watch, depending on their cost (which one is NOT free)
+     *
      * @throws Exception
      */
     protected void doUseRemainingActionPoints() throws Exception {
-        while(this.apLeft > 0){
+        while (this.apLeft > 0) {
             if (getActionCost(Actions.RADAR) > 0) {
                 doAction(Actions.RADAR, this.mapCache.getShuttleExit()); // we should check the field near our shuttle here.
             } else {
@@ -224,7 +221,6 @@ public abstract class AbstractLogicBot extends Bot implements IActionCostProvide
             logToSystemOut(watchResponse, watchResponse.getClass());
         }
 
-//
     }
 
     private CommonResp doExplode(WsCoordinate targetCoordinate) throws Exception {
@@ -299,7 +295,7 @@ public abstract class AbstractLogicBot extends Bot implements IActionCostProvide
         CommonResp commonResp = response.getResult();
 //        logToSystemOut(response, response.getClass());
         if (success(commonResp)) {
-            if(response.isIsYourTurn()) {
+            if (response.isIsYourTurn()) {
                 handleCommonResponse(response.getResult());
                 this.coords = this.mapCache.getUnitPosition(this.unitNumber);
                 return true;
@@ -322,8 +318,7 @@ public abstract class AbstractLogicBot extends Bot implements IActionCostProvide
         }
     }
 
-    private static long lastIsMyTurnRequest = System.currentTimeMillis();
-
+//    private static long lastIsMyTurnRequest = System.currentTimeMillis();
 
 //    protected boolean isMyTurn() throws UnSuccessfulRequestException {
 //        long diff = System.currentTimeMillis() - lastIsMyTurnRequest;
@@ -362,7 +357,7 @@ public abstract class AbstractLogicBot extends Bot implements IActionCostProvide
         this.expLeft = commonResp.getExplosivesLeft();
         this.turnsLeft = commonResp.getTurnsLeft();
         this.unitNumber = commonResp.getBuilderUnit();
-        if(TEST_MODE){
+        if (TEST_MODE) {
             guiController.refreshScore(commonResp.getScore(), this.apLeft, this.expLeft, commonResp.getTurnsLeft());
         }
     }
