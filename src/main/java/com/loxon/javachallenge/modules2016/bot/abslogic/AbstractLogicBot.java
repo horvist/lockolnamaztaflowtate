@@ -6,7 +6,6 @@ import com.loxon.javachallenge.modules2016.bot.enums.Actions;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.IActionCostProvider;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.*;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.IMapCache;
-import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.MapCache;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.time.ITimeHelper;
 import com.loxon.javachallenge.modules2016.gui.controller.IGuiController;
 
@@ -16,7 +15,6 @@ import javax.xml.bind.Marshaller;
 
 import java.io.PrintStream;
 import java.util.Collection;
-import java.util.Map;
 
 /**
  * @author kalmarr
@@ -148,6 +146,10 @@ public abstract class AbstractLogicBot extends Bot implements IActionCostProvide
         this.mapCache.placeShuttle(response.getUnits().get(0).getCord());
         handleCommonResponse(commonResponse);
         logToSystemOut(response, response.getClass());
+
+        for(WsBuilderunit unit : response.getUnits()){
+            this.mapCache.placeUnit(unit.getUnitid(), unit.getCord());
+        }
     }
 
     protected void doRadar(final Collection<WsCoordinate> coordinates) throws Exception {
@@ -192,6 +194,24 @@ public abstract class AbstractLogicBot extends Bot implements IActionCostProvide
      * @throws Exception
      */
     protected void doUseRemainingActionPoints() throws Exception {
+        if (getActionCost(Actions.DRILL) >= this.apLeft) {
+            for (WsCoordinate coordinate : mapCache.getNearbyFields(unitNumber)) {
+                try {
+                    doDrill(coordinate);
+                } catch (Exception e) {
+                    continue;
+                }
+            }
+        } else if(getActionCost(Actions.EXPLODE) >= this.apLeft){
+            for (WsCoordinate coordinate : mapCache.getNearbyFields(unitNumber)) {
+                try {
+                    doExplode(coordinate);
+                } catch (Exception e) {
+                    continue;
+                }
+            }
+        }
+
         while (this.apLeft > 0) {
             if (getActionCost(Actions.RADAR) > 0) {
                 doAction(Actions.RADAR, this.mapCache.getShuttleExit()); // we should check the field near our shuttle here.

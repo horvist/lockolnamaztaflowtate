@@ -64,4 +64,8 @@ public interface IMapCache {
 	public double getFieldDistanceFromShuttle(Field field);
 
 	public int getUnitNumByField(Field field);
+
+	public Collection<WsCoordinate> getNearbyFields(int unitNumber);
+
+	public void placeUnit(int unitNumber, WsCoordinate unitCoord);
 }

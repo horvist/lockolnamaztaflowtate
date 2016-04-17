@@ -114,10 +114,6 @@ public class MapCache implements IMapCache {
                 .setObjectType(ObjectType.SHUTTLE)
                 .setTeam(FieldTeam.ALLY);
         shuttleCoord = coord;
-        for (int i = 0; i < NUM_OF_UNITS; i++) {
-            // setting all units to starting point - the shuttles coordinates
-            unitCoords[i] = coord;
-        }
 
         if (AbstractLogicBot.isTestMode()) {
             Factory.createGuiController().updateElements(coord);
@@ -445,12 +441,48 @@ public class MapCache implements IMapCache {
 
     @Override
     public int getUnitNumByField(Field field) {
-        for(int i = 0; i < NUM_OF_UNITS; i++){
-            if(unitCoords[i].getX() == field.getX()
-                && unitCoords[i].getY() == field.getY()){
+        for (int i = 0; i < NUM_OF_UNITS; i++) {
+            if (unitCoords[i].getX() == field.getX()
+                    && unitCoords[i].getY() == field.getY()) {
                 return i + 1;
             }
         }
         return 0;
+    }
+
+    @Override
+    public void placeUnit(int unitNumber, WsCoordinate unitCoord) {
+        unitCoords[unitNumber] = unitCoord;
+    }
+
+    @Override
+    public Collection<WsCoordinate> getNearbyFields(int unitNumber) {
+        final Set<WsCoordinate> coordinates = new HashSet<>();
+        final Field unitField = getUnitField(unitNumber);
+        //up
+        WsCoordinate next = unitField.getWsCoord();
+        next.setY(next.getY() + 1);
+        coordinates.add(next);
+
+        //down
+        next = unitField.getWsCoord();
+        next.setY(next.getY() - 1);
+        coordinates.add(next);
+
+        next = unitField.getWsCoord();
+        next.setY(next.getY() + 1);
+        coordinates.add(next);
+
+        //left
+        next = unitField.getWsCoord();
+        next.setX(next.getX() - 1);
+        coordinates.add(next);
+
+        //right
+        next = unitField.getWsCoord();
+        next.setX(next.getX() + 1);
+        coordinates.add(next);
+
+        return coordinates;
     }
 }
