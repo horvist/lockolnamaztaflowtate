@@ -2,7 +2,10 @@ package com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.prop;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
+import java.util.StringTokenizer;
 
 /**
  * @author kalmarr
@@ -43,6 +46,10 @@ public final class PropertyHolder {
 
     private static boolean fieldsWeighting;
 
+    private static final String UNITS_USE_FIELD_WEIGHTING = "ai.unitsForWeight";
+
+    private static Set<Integer> unitsUseFieldWeight;
+
     private PropertyHolder() {
     }
 
@@ -69,10 +76,25 @@ public final class PropertyHolder {
 
             fieldsWeighting = Boolean.TRUE.toString().equalsIgnoreCase(pro.getProperty(FIELDS_WEIGHTING));
 
+            unitsUseFieldWeight = getUnitsListFromProp(pro.getProperty(UNITS_USE_FIELD_WEIGHTING));
+
         } catch (Exception e) {
             // in the case, when exception occured by anything, application must not start
             System.exit(-1);
         }
+    }
+
+    private static Set<Integer> getUnitsListFromProp(String list){
+        final Set<Integer> result = new HashSet<>();
+        StringTokenizer tokenizer = new StringTokenizer(list, ",");
+        while(tokenizer.hasMoreElements()){
+            try {
+                result.add(Integer.valueOf(tokenizer.nextToken()));
+            } catch (NumberFormatException e){
+                continue;
+            }
+        }
+        return result;
     }
 
     public static long getTimeBetweenIsMyTurn() {
@@ -106,4 +128,9 @@ public final class PropertyHolder {
     public static boolean isFieldsWeighting() {
         return fieldsWeighting;
     }
+
+    public static Set<Integer> getUnitsUseFieldWeight() {
+        return unitsUseFieldWeight;
+    }
 }
+

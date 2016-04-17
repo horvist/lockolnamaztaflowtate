@@ -442,4 +442,15 @@ public class MapCache implements IMapCache {
         int yDiff = (getShuttleCoord().getY() - field.getY());
         return Math.sqrt((xDiff * xDiff) + (yDiff * yDiff));
     }
+
+    @Override
+    public int getUnitNumByField(Field field) {
+        for(int i = 0; i < NUM_OF_UNITS; i++){
+            if(unitCoords[i].getX() == field.getX()
+                && unitCoords[i].getY() == field.getY()){
+                return i + 1;
+            }
+        }
+        return 0;
+    }
 }

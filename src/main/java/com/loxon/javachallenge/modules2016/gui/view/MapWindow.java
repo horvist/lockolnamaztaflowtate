@@ -18,6 +18,7 @@ import javax.swing.JWindow;
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.ObjectFactory;
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.ObjectType;
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.WsCoordinate;
+import com.loxon.javachallenge.modules2016.bot.abslogic.Factory;
 import com.loxon.javachallenge.modules2016.bot.enums.FieldTeam;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.Field;
 
@@ -118,7 +119,7 @@ public class MapWindow extends JWindow {
 
             case BUILDER_UNIT:
                 if (FieldTeam.ALLY.equals(field.getTeam())) {
-                    return Picture.TEAM_MEMBER;
+                    return getUnitPicture(field);
                 }
                 return Picture.ENEMY_TEAM_MEMBER;
 
@@ -140,6 +141,20 @@ public class MapWindow extends JWindow {
         setVisible(true);
     }
 
+    private Picture getUnitPicture(Field field){
+        switch (Factory.createMap().getUnitNumByField(field)){
+            case 1:
+                return Picture.TEAM_MEMBER1;
+            case 2:
+                return Picture.TEAM_MEMBER2;
+            case 3:
+                return Picture.TEAM_MEMBER3;
+            case 4:
+                return Picture.TEAM_MEMBER4;
+            default:
+                return Picture.TEAM_MEMBER;
+        }
+    }
 
     // main method only for testing
     public static void main(String[] args) throws Exception {
@@ -202,6 +217,10 @@ public class MapWindow extends JWindow {
         ENEMY_SHUTTLE("pictures/enemy_shuttle.png"),
         // team mems
         TEAM_MEMBER("pictures/team_mem.png"),
+        TEAM_MEMBER1("pictures/team_mem1.png"),
+        TEAM_MEMBER2("pictures/team_mem2.png"),
+        TEAM_MEMBER3("pictures/team_mem3.png"),
+        TEAM_MEMBER4("pictures/team_mem4.png"),
         ENEMY_TEAM_MEMBER("pictures/enemy_team_mem.png"),
         // rock types
         OBSIDIAN("pictures/wall.png"),
