@@ -89,7 +89,7 @@ public final class PropertyHolder {
         StringTokenizer tokenizer = new StringTokenizer(list, ",");
         while(tokenizer.hasMoreElements()){
             try {
-                result.add(Integer.valueOf(tokenizer.nextToken()));
+                result.add(Integer.valueOf(tokenizer.nextToken()) - 1);
             } catch (NumberFormatException e){
                 continue;
             }
