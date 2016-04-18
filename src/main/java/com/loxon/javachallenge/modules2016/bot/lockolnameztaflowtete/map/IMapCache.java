@@ -2,6 +2,7 @@ package com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map;
 
 import java.util.Collection;
 
+import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.ObjectType;
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.Scouting;
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.WsCoordinate;
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.WsDirection;
@@ -65,7 +66,7 @@ public interface IMapCache {
 
 	public int getUnitNumByField(Field field);
 
-	public Collection<WsCoordinate> getNearbyFields(int unitNumber);
-
 	public void placeUnit(int unitNumber, WsCoordinate unitCoord);
+
+    Collection<WsCoordinate> getNearbyFields(int unitNumber, ObjectType searchedType);
 }
