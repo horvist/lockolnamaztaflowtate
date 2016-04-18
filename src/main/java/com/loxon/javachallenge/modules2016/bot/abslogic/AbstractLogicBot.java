@@ -147,7 +147,7 @@ public abstract class AbstractLogicBot extends Bot implements IActionCostProvide
         handleCommonResponse(commonResponse);
         logToSystemOut(response, response.getClass());
 
-        for(WsBuilderunit unit : response.getUnits()){
+        for (WsBuilderunit unit : response.getUnits()) {
             this.mapCache.placeUnit(unit.getUnitid(), unit.getCord());
         }
     }
@@ -197,15 +197,15 @@ public abstract class AbstractLogicBot extends Bot implements IActionCostProvide
         if (getActionCost(Actions.DRILL) >= this.apLeft) {
             for (WsCoordinate coordinate : mapCache.getNearbyFields(unitNumber)) {
                 try {
-                    doDrill(coordinate);
+                    doAction(Actions.DRILL, coordinate);
                 } catch (Exception e) {
                     continue;
                 }
             }
-        } else if(getActionCost(Actions.EXPLODE) >= this.apLeft){
+        } else if (getActionCost(Actions.EXPLODE) >= this.apLeft) {
             for (WsCoordinate coordinate : mapCache.getNearbyFields(unitNumber)) {
                 try {
-                    doExplode(coordinate);
+                    doAction(Actions.EXPLODE, coordinate);
                 } catch (Exception e) {
                     continue;
                 }

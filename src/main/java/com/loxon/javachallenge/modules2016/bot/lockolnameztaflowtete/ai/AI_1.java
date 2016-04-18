@@ -116,7 +116,7 @@ public class AI_1 implements IAI {
 
     @Override
     public Field getNextStepForUnit(int unit, IMapCache map, int round, IActionCostProvider actionCostProvider) {
-//        fillActionCosts(actionCostProvider);
+        fillActionCosts(actionCostProvider);
 //        final long time = System.currentTimeMillis();
 
         final Stack<Field> movementsForUnit = smallestCostFields.get(unit);

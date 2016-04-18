@@ -57,21 +57,22 @@ public class HardBot extends AbstractLogicBot {
 
     private void doSomething() throws Exception {
         try {
-            doExplore();
+            while(true) {
+                doExplore();
 
-            final Field targetField = Factory.createAI().getNextStepForUnit(unitNumber, mapCache, turnsLeft, this);
-            final WsCoordinate targetCoord = targetField.getWsCoord();
+                final Field targetField = Factory.createAI().getNextStepForUnit(unitNumber, mapCache, turnsLeft, this);
+                final WsCoordinate targetCoord = targetField.getWsCoord();
 
-            if (targetField.getObjectType() == ObjectType.GRANITE || (targetField.getObjectType() == ObjectType.TUNNEL && targetField.getTeam() == FieldTeam.ENEMY)) {
-                doAction(Actions.EXPLODE, targetCoord);
-                doAction(Actions.DRILL, targetCoord);
-            } else if (targetField.getObjectType() == ObjectType.ROCK) {
-                doAction(Actions.DRILL, targetCoord);
+                if (targetField.getObjectType() == ObjectType.GRANITE || (targetField.getObjectType() == ObjectType.TUNNEL && targetField.getTeam() == FieldTeam.ENEMY)) {
+                    doAction(Actions.EXPLODE, targetCoord);
+                    doAction(Actions.DRILL, targetCoord);
+                } else if (targetField.getObjectType() == ObjectType.ROCK) {
+                    doAction(Actions.DRILL, targetCoord);
+                }
+
+                doAction(Actions.MOVE, targetCoord);
+                Factory.createAI().lastMovementWasExecutedSuccessfully(unitNumber);  // if no exception happened until this point, movement is considered completed
             }
-
-            doAction(Actions.MOVE, targetCoord);
-            Factory.createAI().lastMovementWasExecutedSuccessfully(unitNumber);  // if no exception happened until this point, movement is considered completed
-
         } catch (RunOutOfActionPointsException e){
             doUseRemainingActionPoints();
         }
