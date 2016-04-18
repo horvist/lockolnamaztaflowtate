@@ -267,7 +267,7 @@ public class AI_1 implements IAI {
 
         // fields closer to the shuttle are move valuable?
         if (PropertyHolder.isFieldsWeighting() && PropertyHolder.getUnitsUseFieldWeight().contains(currentUnit)) {
-            cost *= map.getFieldDistanceFromShuttle(field);
+            cost *= Math.sqrt(map.getFieldDistanceFromShuttle(field));
         }
 
         return cost;
