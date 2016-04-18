@@ -1,8 +1,10 @@
 package com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -27,6 +29,8 @@ import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.
 public class MapCache implements IMapCache {
 
     private static final String TEAM_NAME = "lockolnameztaflowtete";
+    private static final int RADAR_RADIUS = 3;
+    private static final int COUNT_SURROUNDING_TUNNELS_RADIUS = 1;
 
     private Field[][] map;
 
@@ -392,47 +396,6 @@ public class MapCache implements IMapCache {
     }
 
     @Override
-    public int getNumOfOurFieldsNextToField(Field field) {
-        int ret = 0;
-        for (WsDirection dir : WsDirection.values()) {
-            Field fieldForDir = getFieldForDirection(field, dir);
-            if (fieldForDir != null && field.getTeam() == FieldTeam.ALLY) {
-                ret++;
-            }
-        }
-
-        return ret;
-    }
-
-    @Override
-    public Collection<WsCoordinate> getRadarableCoordinatesForUnit(int unit) {
-        WsCoordinate unitCoord = getUnitPosition(unit);
-        final int x = unitCoord.getX();
-        final int y = unitCoord.getY();
-        Set<WsCoordinate> radarableCoords = new HashSet<WsCoordinate>();
-
-        for (int i = -3; i <= 3; i++) {
-            for (int j = -3; j <= 3; j++) {
-                if (i == 0 && j == 0) {
-                    continue;
-                }
-
-                try {
-                    final Field field = getMappedFieldForCoords(x + i, y + j);
-                    if (field != null) {
-                        radarableCoords.add(field.getWsCoord());
-                    }
-                } catch (Exception e) {
-                    // do nothing, probably index out of bounds or something, not too sophisticated exception handling :(
-                }
-
-            }
-        }
-
-        return radarableCoords;
-    }
-
-    @Override
     public double getFieldDistanceFromShuttle(Field field) {
         int xDiff = (getShuttleCoord().getX() - field.getX());
         int yDiff = (getShuttleCoord().getY() - field.getY());
@@ -456,33 +419,73 @@ public class MapCache implements IMapCache {
     }
 
     @Override
-    public Collection<WsCoordinate> getNearbyFields(int unitNumber) {
+    public Collection<WsCoordinate> getNearbyFields(int unitNumber, ObjectType searchedType) {
         final Set<WsCoordinate> coordinates = new HashSet<>();
         final Field unitField = getUnitField(unitNumber);
-        //up
-        WsCoordinate next = unitField.getWsCoord();
-        next.setY(next.getY() + 1);
-        coordinates.add(next);
 
-        //down
-        next = unitField.getWsCoord();
-        next.setY(next.getY() - 1);
-        coordinates.add(next);
-
-        next = unitField.getWsCoord();
-        next.setY(next.getY() + 1);
-        coordinates.add(next);
-
-        //left
-        next = unitField.getWsCoord();
-        next.setX(next.getX() - 1);
-        coordinates.add(next);
-
-        //right
-        next = unitField.getWsCoord();
-        next.setX(next.getX() + 1);
-        coordinates.add(next);
+        int ret = 0;
+        for (WsDirection dir : WsDirection.values()) {
+            Field fieldForDir = getFieldForDirection(unitField, dir);
+            if (fieldForDir != null && searchedType != null && searchedType == fieldForDir.getObjectType()) {
+                coordinates.add(fieldForDir.getWsCoord());
+            }
+        }
 
         return coordinates;
+    }
+
+    @Override
+    public int getNumOfOurFieldsNextToField(Field field) {
+        List<WsCoordinate> coords = getSurroundingCoordinatesForField(field.getX(), field.getY(), COUNT_SURROUNDING_TUNNELS_RADIUS,
+                new FieldChecker() {
+
+                @Override
+                public boolean isFieldAcceptable(Field field) {
+                    return field != null && field.getTeam() == FieldTeam.ALLY;
+                }
+        });
+
+        return coords.size() / 2;   // was too much
+    }
+
+    @Override
+    public Collection<WsCoordinate> getRadarableCoordinatesForUnit(int unit) {
+        WsCoordinate unitCoord = getUnitPosition(unit);
+        List<WsCoordinate> radarableCoords = getSurroundingCoordinatesForField(unitCoord.getX(), unitCoord.getY(), RADAR_RADIUS,
+            new FieldChecker() {
+
+            @Override
+            public boolean isFieldAcceptable(Field field) {
+                return field != null;
+            }
+        });
+
+        return radarableCoords;
+    }
+
+    private List<WsCoordinate> getSurroundingCoordinatesForField(int x, int y, int radius, FieldChecker fieldChecker) {
+        List<WsCoordinate> ret = new ArrayList<WsCoordinate>();
+        for (int i = -radius; i <= radius; i++) {
+            for (int j = -radius; j <= radius; j++) {
+                if (i == 0 && j == 0) {
+                    break;
+                }
+
+                try {
+                    final Field field = getMappedFieldForCoords(x + i, y + j);
+                    if (fieldChecker.isFieldAcceptable(field)) {
+                        ret.add(field.getWsCoord());
+                    }
+                } catch (Exception e) {
+                    // do nothing, probably index out of bounds or something, not too sophisticated exception handling :(
+                }
+            }
+        }
+
+        return ret;
+    }
+
+    private interface FieldChecker {
+        boolean isFieldAcceptable(Field field);
     }
 }

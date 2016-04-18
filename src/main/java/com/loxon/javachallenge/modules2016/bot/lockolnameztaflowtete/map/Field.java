@@ -22,6 +22,7 @@ public class Field {
 
 	private long lastUpdated;
 	private boolean wasOurs;
+	private boolean dirty;
 
 	public Field(int x, int y) {
 		this.team = FieldTeam.NO_MANS_LAND;
@@ -29,6 +30,7 @@ public class Field {
 		this.y = y;
 		this.wasOurs = false;
 		this.lastUpdated = System.currentTimeMillis();
+		this.dirty = false;
 	}
 
 	public int getX() {
@@ -51,6 +53,9 @@ public class Field {
 	}
 
 	public Field setObjectType(ObjectType objectType) {
+	    if (objectType != this.objectType) {
+	        this.dirty = true;
+	    }
 		this.objectType = objectType;
 		this.lastUpdated = System.currentTimeMillis();
 		return this;
@@ -61,6 +66,9 @@ public class Field {
 	}
 
 	public Field setTeam(FieldTeam team) {
+	    if (team != this.team) {
+	        this.dirty = true;
+	    }
 		this.team = team;
 		if (team == FieldTeam.ALLY) {
 		    this.wasOurs = true;  // if a field once was ours...
@@ -125,5 +133,13 @@ public class Field {
 
     public void setWasOurs(boolean wasOurs) {
         this.wasOurs = wasOurs;
+    }
+
+    public void clearDirtyFlag() {
+        this.dirty = false;
+    }
+
+    public boolean isDirty() {
+        return false;   // FIXME returning always false for testing
     }
 }

@@ -195,7 +195,7 @@ public abstract class AbstractLogicBot extends Bot implements IActionCostProvide
      */
     protected void doUseRemainingActionPoints() throws Exception {
         if (getActionCost(Actions.DRILL) >= this.apLeft) {
-            for (WsCoordinate coordinate : mapCache.getNearbyFields(unitNumber)) {
+            for (WsCoordinate coordinate : mapCache.getNearbyFields(unitNumber, ObjectType.ROCK)) {
                 try {
                     doAction(Actions.DRILL, coordinate);
                 } catch (Exception e) {
@@ -203,7 +203,7 @@ public abstract class AbstractLogicBot extends Bot implements IActionCostProvide
                 }
             }
         } else if (getActionCost(Actions.EXPLODE) >= this.apLeft) {
-            for (WsCoordinate coordinate : mapCache.getNearbyFields(unitNumber)) {
+            for (WsCoordinate coordinate : mapCache.getNearbyFields(unitNumber, ObjectType.GRANITE)) {
                 try {
                     doAction(Actions.EXPLODE, coordinate);
                 } catch (Exception e) {

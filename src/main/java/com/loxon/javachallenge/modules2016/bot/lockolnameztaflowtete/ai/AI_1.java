@@ -114,6 +114,18 @@ public class AI_1 implements IAI {
         COST_DEFAULT = COST_GRANITE * COST_REDUCE_RATIO;    // the default cost will be between the granite and rock
     }
 
+    private boolean hasDirtyFieldInPath(int unit) {
+        boolean ret = false;
+        for (Field field : smallestCostFields.get(unit)) {
+            if (field.isDirty()) {
+                ret = true;
+                field.clearDirtyFlag(); // should continue iteration to clear dirty flag from all fields in path
+            }
+        }
+
+        return ret;
+    }
+
     @Override
     public Field getNextStepForUnit(int unit, IMapCache map, int round, IActionCostProvider actionCostProvider) {
         fillActionCosts(actionCostProvider);
@@ -122,7 +134,7 @@ public class AI_1 implements IAI {
         final Stack<Field> movementsForUnit = smallestCostFields.get(unit);
 //        final Stack<Field> movementsForUnit = smallestCostFields;
 
-        if (currentUnit != unit || movementsForUnit.isEmpty() || round > 70) {
+        if (currentUnit != unit || movementsForUnit.isEmpty() || round > 70 || hasDirtyFieldInPath(unit)) {
             currentUnit = unit;
             foundSmallestCost = 999999;
             leafNodes.clear();
