@@ -197,16 +197,27 @@ public abstract class AbstractLogicBot extends Bot implements IActionCostProvide
         if (getActionCost(Actions.DRILL) >= this.apLeft) {
             for (WsCoordinate coordinate : mapCache.getNearbyFields(unitNumber)) {
                 try {
-                    doAction(Actions.DRILL, coordinate);
+                    if (getActionCost(Actions.DRILL) >= this.apLeft) {
+                        doAction(Actions.DRILL, coordinate);
+                        Thread.sleep(40L);
+                    } else {
+                        break;
+                    }
                 } catch (Exception e) {
+                    Thread.sleep(40L);
                     continue;
                 }
             }
         } else if (getActionCost(Actions.EXPLODE) >= this.apLeft) {
             for (WsCoordinate coordinate : mapCache.getNearbyFields(unitNumber)) {
                 try {
-                    doAction(Actions.EXPLODE, coordinate);
+                    if (getActionCost(Actions.EXPLODE) >= this.apLeft) {
+                        doAction(Actions.EXPLODE, coordinate);
+                    } else {
+                        break;
+                    }
                 } catch (Exception e) {
+                    Thread.sleep(40L);
                     continue;
                 }
             }
@@ -218,6 +229,7 @@ public abstract class AbstractLogicBot extends Bot implements IActionCostProvide
             } else {
                 doWatch();
             }
+            Thread.sleep(20l);
         }
     }
 

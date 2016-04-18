@@ -72,9 +72,10 @@ public class HardBot extends AbstractLogicBot {
 
                 doAction(Actions.MOVE, targetCoord);
                 Factory.createAI().lastMovementWasExecutedSuccessfully(unitNumber);  // if no exception happened until this point, movement is considered completed
+//                Thread.sleep(40L);
             }
         } catch (RunOutOfActionPointsException e){
-            doUseRemainingActionPoints();
+//            doUseRemainingActionPoints();
         }
     }
 
