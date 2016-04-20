@@ -4,4 +4,6 @@ public interface ITimeHelper {
 	public boolean isInTime() throws Exception;
 
     void setStartTime(int unit);
+
+    public void printTime();
 }

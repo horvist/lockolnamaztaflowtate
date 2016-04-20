@@ -35,6 +35,11 @@ public class TimeHelper implements ITimeHelper {
     }
 
     @Override
+    public void printTime() {
+        System.out.println("startTime: " + starttime + ", currentTime: " + System.currentTimeMillis() + ", maxTime: " + (starttime + TIME_INTERVAL));
+    }
+
+    @Override
     public void setStartTime(int unit) {
         if (currentUnit != unit) {
             currentUnit = unit;

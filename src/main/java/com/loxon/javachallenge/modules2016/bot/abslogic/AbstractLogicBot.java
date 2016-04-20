@@ -7,6 +7,7 @@ import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.IActionCost
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.*;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.IMapCache;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.time.ITimeHelper;
+import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.time.TimeHelper;
 import com.loxon.javachallenge.modules2016.gui.controller.IGuiController;
 
 import javax.xml.bind.JAXBContext;
@@ -248,6 +249,9 @@ public abstract class AbstractLogicBot extends Bot implements IActionCostProvide
             throw new RunOutOfTimeException("DoWatch");
         }
 
+//        timeHelper.printTime();
+        System.out.println("");
+        System.out.println("Current unit number: " + this.unitNumber);
         WatchRequest watchRequest = FACTORY.createWatchRequest();
         watchRequest.setUnit(this.unitNumber);
         WatchResponse watchResponse = service.watch(watchRequest);
@@ -335,7 +339,7 @@ public abstract class AbstractLogicBot extends Bot implements IActionCostProvide
 //        logToSystemOut(response, response.getClass());
         if (success(commonResp)) {
             if (response.isIsYourTurn()) {
-                handleCommonResponse(response.getResult());
+                handleCommonResponse(response.getResult(), true);
                 this.coords = this.mapCache.getUnitPosition(this.unitNumber);
                 return true;
             } else {
@@ -392,10 +396,17 @@ public abstract class AbstractLogicBot extends Bot implements IActionCostProvide
     }
 
     private void handleCommonResponse(final CommonResp commonResp) {
+        handleCommonResponse(commonResp, false);
+    }
+
+
+    private void handleCommonResponse(final CommonResp commonResp, boolean setUnit) {
         this.apLeft = commonResp.getActionPointsLeft();
         this.expLeft = commonResp.getExplosivesLeft();
         this.turnsLeft = commonResp.getTurnsLeft();
-        this.unitNumber = commonResp.getBuilderUnit();
+        if (setUnit) {
+            this.unitNumber = commonResp.getBuilderUnit();
+        }
         if (TEST_MODE) {
             guiController.refreshScore(commonResp.getScore(), this.apLeft, this.expLeft, commonResp.getTurnsLeft());
         }

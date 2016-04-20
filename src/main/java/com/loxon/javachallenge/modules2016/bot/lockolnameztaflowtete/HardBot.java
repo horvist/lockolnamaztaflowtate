@@ -43,9 +43,9 @@ public class HardBot extends AbstractLogicBot {
             try {
                 if (isMyTurn()) {
                     this.timeHelper.setStartTime(unitNumber);
-
-                    this.doSomething();
-
+                    if (timeHelper.isInTime()) {
+                        this.doSomething();
+                    }
                 }
             } catch (Exception e) {
                 // e.printStackTrace();
@@ -57,7 +57,6 @@ public class HardBot extends AbstractLogicBot {
     private void doSomething() throws Exception {
         while (true) {
             try {
-
                 doExplore();
 
                 final Field targetField = Factory.createAI().getNextStepForUnit(unitNumber, mapCache, turnsLeft, this);
@@ -72,7 +71,7 @@ public class HardBot extends AbstractLogicBot {
 
                 doAction(Actions.MOVE, targetCoord);
                 Factory.createAI().lastMovementWasExecutedSuccessfully(unitNumber);  // if no exception happened until this point, movement is considered completed
-//                Thread.sleep(40L);
+                Thread.sleep(100L);
 
             } catch (RunOutOfTimeException e){
                 throw e;
@@ -80,7 +79,8 @@ public class HardBot extends AbstractLogicBot {
 //            doUseRemainingActionPoints();
                 throw e;
             } catch (UnSuccessfulRequestException e){
-                continue;
+                //continue;
+                throw e;
             }
         }
     }
