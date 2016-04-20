@@ -19,9 +19,11 @@ public class ScoreWindow extends JWindow {
 
     private final int Y = 0;
 
-    private JLabel peneltyPointLabel;
+    private JLabel penaltyPointLabel;
 
     private JLabel rewardPointLabel;
+
+    private JLabel totalPointWithoutPenaltyLabel;
 
     private JLabel totalPointLabel;
 
@@ -41,21 +43,23 @@ public class ScoreWindow extends JWindow {
         setBounds(0, 0, 350, 200);
 
         JPanel resultPanel = new JPanel();
-        resultPanel.setLayout(new GridLayout(7, 2));
+        resultPanel.setLayout(new GridLayout(8, 2));
 
         bonusLabel = new JLabel("0", JLabel.CENTER);
-        peneltyPointLabel = new JLabel("0", JLabel.CENTER);
+        penaltyPointLabel = new JLabel("0", JLabel.CENTER);
         rewardPointLabel = new JLabel("0", JLabel.CENTER);
         totalPointLabel = new JLabel("0", JLabel.CENTER);
         actionPointLabel = new JLabel("0", JLabel.CENTER);
         explosionLeftLabel = new JLabel("0", JLabel.CENTER);
         roundsLeftLabel = new JLabel("0", JLabel.CENTER);
+        totalPointWithoutPenaltyLabel = new JLabel("0", JLabel.CENTER);
 
-
+        resultPanel.add(new JLabel("Total points without penalty:", JLabel.RIGHT));
+        resultPanel.add(totalPointWithoutPenaltyLabel);
         resultPanel.add(new JLabel("Total points", JLabel.RIGHT));
         resultPanel.add(totalPointLabel);
         resultPanel.add(new JLabel("Penalty points", JLabel.RIGHT));
-        resultPanel.add(peneltyPointLabel);
+        resultPanel.add(penaltyPointLabel);
         resultPanel.add(new JLabel("Reward points", JLabel.RIGHT));
         resultPanel.add(rewardPointLabel);
         resultPanel.add(new JLabel("Total bonusPoints", JLabel.RIGHT));
@@ -83,8 +87,9 @@ public class ScoreWindow extends JWindow {
     }
 
     public void refreshScore(WsScore score, int actionPointLeft, int explLeft, int roundsLeft) {
+        totalPointWithoutPenaltyLabel.setText(String.valueOf(score.getTotal()+score.getPenalty()));
         bonusLabel.setText(String.valueOf(score.getBonus()));
-        peneltyPointLabel.setText(String.valueOf(score.getPenalty()));
+        penaltyPointLabel.setText(String.valueOf(score.getPenalty()));
         rewardPointLabel.setText(String.valueOf(score.getReward()));
         totalPointLabel.setText(String.valueOf(score.getTotal()));
         actionPointLabel.setText(String.valueOf(actionPointLeft));
