@@ -140,6 +140,6 @@ public class Field {
     }
 
     public boolean isDirty() {
-        return false;   // FIXME returning always false for testing
+        return dirty;   // FIXME returning always false for testing
     }
 }

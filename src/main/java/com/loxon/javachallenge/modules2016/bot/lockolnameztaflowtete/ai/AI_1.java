@@ -134,6 +134,10 @@ public class AI_1 implements IAI {
         final Stack<Field> movementsForUnit = smallestCostFields.get(unit);
 //        final Stack<Field> movementsForUnit = smallestCostFields;
 
+        if (round > 73) {
+            clearBotPaths();
+        }
+
         if (currentUnit != unit || movementsForUnit.isEmpty() || round > 70 || hasDirtyFieldInPath(unit)) {
             currentUnit = unit;
             foundSmallestCost = 999999;
