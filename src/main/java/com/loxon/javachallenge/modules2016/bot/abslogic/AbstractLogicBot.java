@@ -102,8 +102,11 @@ public abstract class AbstractLogicBot extends Bot implements IActionCostProvide
     }
 
     protected void doAction(final Actions actionType, final WsCoordinate targetCoordinate) throws Exception {
+        boolean isEndOfTurn = false;
         if (this.apLeft < getActionCost(actionType)) {
             throw new RunOutOfActionPointsException(actionType.name());
+        } else if(this.apLeft == getActionCost(actionType)){
+            isEndOfTurn = true;
         }
 
         try {
@@ -131,6 +134,10 @@ public abstract class AbstractLogicBot extends Bot implements IActionCostProvide
             }
         } catch (Exception e) {
             throw e;
+        }
+
+        if(isEndOfTurn){
+            throw new EndOfTurnException("doAction used all action point.");
         }
     }
 
