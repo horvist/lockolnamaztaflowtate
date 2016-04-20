@@ -7,6 +7,7 @@ import com.loxon.javachallenge.modules2016.bot.abslogic.Factory;
 import com.loxon.javachallenge.modules2016.bot.enums.Actions;
 import com.loxon.javachallenge.modules2016.bot.enums.FieldTeam;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.RunOutOfActionPointsException;
+import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.RunOutOfTimeException;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.UnSuccessfulRequestException;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.Field;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.IMapCache;
@@ -46,8 +47,6 @@ public class HardBot extends AbstractLogicBot {
                     this.doSomething();
 
                 }
-            } catch (UnSuccessfulRequestException e) {
-                e.printStackTrace();
             } catch (Exception e) {
                 // e.printStackTrace();
             }
@@ -56,8 +55,9 @@ public class HardBot extends AbstractLogicBot {
     }
 
     private void doSomething() throws Exception {
-        try {
-            while(true) {
+        while (true) {
+            try {
+
                 doExplore();
 
                 final Field targetField = Factory.createAI().getNextStepForUnit(unitNumber, mapCache, turnsLeft, this);
@@ -73,12 +73,17 @@ public class HardBot extends AbstractLogicBot {
                 doAction(Actions.MOVE, targetCoord);
                 Factory.createAI().lastMovementWasExecutedSuccessfully(unitNumber);  // if no exception happened until this point, movement is considered completed
 //                Thread.sleep(40L);
-            }
-        } catch (RunOutOfActionPointsException e){
+
+            } catch (RunOutOfTimeException e){
+                throw e;
+            } catch (RunOutOfActionPointsException e) {
 //            doUseRemainingActionPoints();
+                throw e;
+            } catch (UnSuccessfulRequestException e){
+                continue;
+            }
         }
     }
-
 
 
     public static void main(String[] args) {
