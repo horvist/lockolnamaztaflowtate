@@ -161,8 +161,11 @@ public abstract class AbstractLogicBot extends Bot implements IActionCostProvide
     }
 
     protected void doRadar(final Collection<WsCoordinate> coordinates) throws Exception {
+        boolean isEndOfTurn = false;
         if (this.apLeft < getActionCost(Actions.RADAR) * coordinates.size()) {
             throw new RunOutOfActionPointsException("DoRadar");
+        } else if(this.apLeft == getActionCost(Actions.WATCH)){
+            isEndOfTurn = true;
         }
         if (!timeHelper.isInTime()) {
             throw new RunOutOfTimeException("DoRadar");
@@ -179,6 +182,10 @@ public abstract class AbstractLogicBot extends Bot implements IActionCostProvide
             this.mapCache.handleScouts(radarResponse.getScout());
         } else {
             logToSystemOut(radarResponse, radarResponse.getClass());
+        }
+
+        if(isEndOfTurn){
+            throw new EndOfTurnException("doWatch used all action point.");
         }
     }
 
@@ -242,8 +249,11 @@ public abstract class AbstractLogicBot extends Bot implements IActionCostProvide
     }
 
     protected void doWatch() throws Exception {
+        boolean isEndOfTurn = false;
         if (this.apLeft < getActionCost(Actions.WATCH)) {
             throw new RunOutOfActionPointsException("DoWatch");
+        } else if(this.apLeft == getActionCost(Actions.WATCH)){
+            isEndOfTurn = true;
         }
         if (!timeHelper.isInTime()) {
             throw new RunOutOfTimeException("DoWatch");
@@ -264,6 +274,9 @@ public abstract class AbstractLogicBot extends Bot implements IActionCostProvide
             logToSystemOut(watchResponse, watchResponse.getClass());
         }
 
+        if(isEndOfTurn){
+            throw new EndOfTurnException("doWatch used all action point.");
+        }
     }
 
     private CommonResp doExplode(WsCoordinate targetCoordinate) throws Exception {
