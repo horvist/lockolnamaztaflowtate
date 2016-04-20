@@ -50,6 +50,10 @@ public final class PropertyHolder {
 
     private static Set<Integer> unitsUseFieldWeight;
 
+    private static final String COLLECT_ISLANDS = "ai.collectIslands";
+
+    private static boolean collectIslands;
+
     private PropertyHolder() {
     }
 
@@ -77,6 +81,8 @@ public final class PropertyHolder {
             fieldsWeighting = Boolean.TRUE.toString().equalsIgnoreCase(pro.getProperty(FIELDS_WEIGHTING));
 
             unitsUseFieldWeight = getUnitsListFromProp(pro.getProperty(UNITS_USE_FIELD_WEIGHTING));
+
+            collectIslands = Boolean.TRUE.toString().equalsIgnoreCase(pro.getProperty(COLLECT_ISLANDS));
 
         } catch (Exception e) {
             // in the case, when exception occured by anything, application must not start
@@ -131,6 +137,10 @@ public final class PropertyHolder {
 
     public static Set<Integer> getUnitsUseFieldWeight() {
         return unitsUseFieldWeight;
+    }
+
+    public static boolean isCollectIslands() {
+        return collectIslands;
     }
 }
 

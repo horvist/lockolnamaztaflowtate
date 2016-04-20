@@ -273,13 +273,15 @@ public class AI_1 implements IAI {
             cost = COST_GRANITE;
         }
 
-//        if (!(type == ObjectType.TUNNEL && team == FieldTeam.ALLY)) {
-//            final int numOfOurFieldsNextToField = map.getNumOfOurFieldsNextToField(field);
-//            if (numOfOurFieldsNextToField > 0) {
-//                // if a field is next to our field, regardless of it's type it is considered to be more valuable
-//                cost *= (1 / (numOfOurFieldsNextToField * numOfOurFieldsNextToField));  // nééééégyzetesen
-//            }
-//        }
+        if(PropertyHolder.isCollectIslands()) {
+            if (!(type == ObjectType.TUNNEL && team == FieldTeam.ALLY)) {
+                final int numOfOurFieldsNextToField = map.getNumOfOurFieldsNextToField(field);
+                if (numOfOurFieldsNextToField > 0) {
+                    // if a field is next to our field, regardless of it's type it is considered to be more valuable
+                    cost *= (1 / (numOfOurFieldsNextToField * numOfOurFieldsNextToField));  // nééééégyzetesen
+                }
+            }
+        }
 
         // fields closer to the shuttle are move valuable?
         if (PropertyHolder.isFieldsWeighting() && PropertyHolder.getUnitsUseFieldWeight().contains(currentUnit)) {
