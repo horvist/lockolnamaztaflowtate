@@ -138,7 +138,7 @@ public class AI_1 implements IAI {
             clearBotPaths();
         }
 
-        if (currentUnit != unit || movementsForUnit.isEmpty() || round > 70 || hasDirtyFieldInPath(unit)) {
+        if (currentUnit != unit || movementsForUnit.isEmpty() || hasDirtyFieldInPath(unit)) {
             currentUnit = unit;
             foundSmallestCost = 999999;
             leafNodes.clear();
@@ -273,13 +273,13 @@ public class AI_1 implements IAI {
             cost = COST_GRANITE;
         }
 
-        if (!(type == ObjectType.TUNNEL && team == FieldTeam.ALLY)) {
-            final int numOfOurFieldsNextToField = map.getNumOfOurFieldsNextToField(field);
-            if (numOfOurFieldsNextToField > 0) {
-                // if a field is next to our field, regardless of it's type it is considered to be more valuable
-                cost *= (1 / (numOfOurFieldsNextToField * numOfOurFieldsNextToField));  // nééééégyzetesen
-            }
-        }
+//        if (!(type == ObjectType.TUNNEL && team == FieldTeam.ALLY)) {
+//            final int numOfOurFieldsNextToField = map.getNumOfOurFieldsNextToField(field);
+//            if (numOfOurFieldsNextToField > 0) {
+//                // if a field is next to our field, regardless of it's type it is considered to be more valuable
+//                cost *= (1 / (numOfOurFieldsNextToField * numOfOurFieldsNextToField));  // nééééégyzetesen
+//            }
+//        }
 
         // fields closer to the shuttle are move valuable?
         if (PropertyHolder.isFieldsWeighting() && PropertyHolder.getUnitsUseFieldWeight().contains(currentUnit)) {

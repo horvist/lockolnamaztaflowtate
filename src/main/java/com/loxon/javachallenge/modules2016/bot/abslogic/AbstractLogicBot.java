@@ -1,21 +1,46 @@
 package com.loxon.javachallenge.modules2016.bot.abslogic;
 
-import com.loxon.javachallenge.modules2015.bot.core.Bot;
-import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.*;
-import com.loxon.javachallenge.modules2016.bot.enums.Actions;
-import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.IActionCostProvider;
-import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.*;
-import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.IMapCache;
-import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.time.ITimeHelper;
-import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.time.TimeHelper;
-import com.loxon.javachallenge.modules2016.gui.controller.IGuiController;
+import java.io.PrintStream;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 
-import java.io.PrintStream;
-import java.util.Collection;
+import com.loxon.javachallenge.modules2015.bot.core.Bot;
+import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.ActionCostResponse;
+import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.CommonResp;
+import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.ExplodeCellRequest;
+import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.ExplodeCellResponse;
+import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.GetSpaceShuttleExitPosResponse;
+import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.IsMyTurnResponse;
+import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.MoveBuilderUnitRequest;
+import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.MoveBuilderUnitResponse;
+import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.ObjectFactory;
+import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.ObjectType;
+import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.RadarRequest;
+import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.RadarResponse;
+import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.ResultType;
+import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.StartGameResponse;
+import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.StructureTunnelRequest;
+import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.StructureTunnelResponse;
+import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.WatchRequest;
+import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.WatchResponse;
+import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.WsBuilderunit;
+import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.WsCoordinate;
+import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.WsDirection;
+import com.loxon.javachallenge.modules2016.bot.enums.Actions;
+import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.IActionCostProvider;
+import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.EndOfTurnException;
+import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.RunOutOfActionPointsException;
+import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.RunOutOfExplosionsException;
+import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.RunOutOfTimeException;
+import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.UnSuccessfulRequestException;
+import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.IMapCache;
+import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.time.ITimeHelper;
+import com.loxon.javachallenge.modules2016.gui.controller.IGuiController;
 
 /**
  * @author kalmarr
@@ -164,7 +189,7 @@ public abstract class AbstractLogicBot extends Bot implements IActionCostProvide
         boolean isEndOfTurn = false;
         if (this.apLeft < getActionCost(Actions.RADAR) * coordinates.size()) {
             throw new RunOutOfActionPointsException("DoRadar");
-        } else if (this.apLeft == getActionCost(Actions.WATCH)) {
+        } else if (this.apLeft == getActionCost(Actions.RADAR) * coordinates.size()) {
             isEndOfTurn = true;
         }
         if (!timeHelper.isInTime()) {
@@ -241,7 +266,9 @@ public abstract class AbstractLogicBot extends Bot implements IActionCostProvide
 
         while (this.apLeft > 0) {
             if (getActionCost(Actions.RADAR) > 0) {
-                doAction(Actions.RADAR, this.mapCache.getShuttleExit()); // we should check the field near our shuttle here.
+                List<WsCoordinate> radarableCoords = (List<WsCoordinate>) mapCache.getRadarableCoordinatesForUnit(unitNumber);
+                Collections.shuffle(radarableCoords);
+                doRadar(radarableCoords.subList(0, this.apLeft)); // we should check the field near our shuttle here.
             } else {
                 doWatch();
             }
