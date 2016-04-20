@@ -87,7 +87,7 @@ public class ScoreWindow extends JWindow {
     }
 
     public void refreshScore(WsScore score, int actionPointLeft, int explLeft, int roundsLeft) {
-        totalPointWithoutPenaltyLabel.setText(String.valueOf(score.getTotal()+score.getPenalty()));
+        totalPointWithoutPenaltyLabel.setText(String.valueOf(score.getTotal()-score.getPenalty()));
         bonusLabel.setText(String.valueOf(score.getBonus()));
         penaltyPointLabel.setText(String.valueOf(score.getPenalty()));
         rewardPointLabel.setText(String.valueOf(score.getReward()));
