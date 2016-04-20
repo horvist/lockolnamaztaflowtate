@@ -106,7 +106,7 @@ public abstract class AbstractLogicBot extends Bot implements IActionCostProvide
         boolean isEndOfTurn = false;
         if (this.apLeft < getActionCost(actionType)) {
             throw new RunOutOfActionPointsException(actionType.name());
-        } else if(this.apLeft == getActionCost(actionType)){
+        } else if (this.apLeft == getActionCost(actionType)) {
             isEndOfTurn = true;
         }
 
@@ -137,7 +137,7 @@ public abstract class AbstractLogicBot extends Bot implements IActionCostProvide
             throw e;
         }
 
-        if(isEndOfTurn){
+        if (isEndOfTurn) {
             throw new EndOfTurnException("doAction used all action point.");
         }
     }
@@ -164,7 +164,7 @@ public abstract class AbstractLogicBot extends Bot implements IActionCostProvide
         boolean isEndOfTurn = false;
         if (this.apLeft < getActionCost(Actions.RADAR) * coordinates.size()) {
             throw new RunOutOfActionPointsException("DoRadar");
-        } else if(this.apLeft == getActionCost(Actions.WATCH)){
+        } else if (this.apLeft == getActionCost(Actions.WATCH)) {
             isEndOfTurn = true;
         }
         if (!timeHelper.isInTime()) {
@@ -184,7 +184,7 @@ public abstract class AbstractLogicBot extends Bot implements IActionCostProvide
             logToSystemOut(radarResponse, radarResponse.getClass());
         }
 
-        if(isEndOfTurn){
+        if (isEndOfTurn) {
             throw new EndOfTurnException("doWatch used all action point.");
         }
     }
@@ -214,12 +214,12 @@ public abstract class AbstractLogicBot extends Bot implements IActionCostProvide
                 try {
                     if (getActionCost(Actions.DRILL) >= this.apLeft) {
                         doAction(Actions.DRILL, coordinate);
-                        Thread.sleep(40L);
                     } else {
                         break;
                     }
+                } catch (EndOfTurnException e) {
+                    throw e;
                 } catch (Exception e) {
-                    Thread.sleep(40L);
                     continue;
                 }
             }
@@ -231,8 +231,9 @@ public abstract class AbstractLogicBot extends Bot implements IActionCostProvide
                     } else {
                         break;
                     }
+                } catch (EndOfTurnException e) {
+                    throw e;
                 } catch (Exception e) {
-                    Thread.sleep(40L);
                     continue;
                 }
             }
@@ -244,7 +245,6 @@ public abstract class AbstractLogicBot extends Bot implements IActionCostProvide
             } else {
                 doWatch();
             }
-            Thread.sleep(20l);
         }
     }
 
@@ -252,7 +252,7 @@ public abstract class AbstractLogicBot extends Bot implements IActionCostProvide
         boolean isEndOfTurn = false;
         if (this.apLeft < getActionCost(Actions.WATCH)) {
             throw new RunOutOfActionPointsException("DoWatch");
-        } else if(this.apLeft == getActionCost(Actions.WATCH)){
+        } else if (this.apLeft == getActionCost(Actions.WATCH)) {
             isEndOfTurn = true;
         }
         if (!timeHelper.isInTime()) {
@@ -274,7 +274,7 @@ public abstract class AbstractLogicBot extends Bot implements IActionCostProvide
             logToSystemOut(watchResponse, watchResponse.getClass());
         }
 
-        if(isEndOfTurn){
+        if (isEndOfTurn) {
             throw new EndOfTurnException("doWatch used all action point.");
         }
     }
