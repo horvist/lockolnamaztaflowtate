@@ -234,41 +234,41 @@ public abstract class AbstractLogicBot extends Bot implements IActionCostProvide
      * @throws Exception
      */
     protected void doUseRemainingActionPoints() throws Exception {
-        if (getActionCost(Actions.DRILL) >= this.apLeft) {
-            for (WsCoordinate coordinate : mapCache.getNearbyFields(unitNumber, ObjectType.ROCK)) {
-                try {
-                    if (getActionCost(Actions.DRILL) >= this.apLeft) {
-                        doAction(Actions.DRILL, coordinate);
-                    } else {
-                        break;
-                    }
-                } catch (EndOfTurnException e) {
-                    throw e;
-                } catch (Exception e) {
-                    continue;
-                }
-            }
-        } else if (getActionCost(Actions.EXPLODE) >= this.apLeft) {
-            for (WsCoordinate coordinate : mapCache.getNearbyFields(unitNumber, ObjectType.GRANITE)) {
-                try {
-                    if (getActionCost(Actions.EXPLODE) >= this.apLeft) {
-                        doAction(Actions.EXPLODE, coordinate);
-                    } else {
-                        break;
-                    }
-                } catch (EndOfTurnException e) {
-                    throw e;
-                } catch (Exception e) {
-                    continue;
-                }
-            }
-        }
+//        if (getActionCost(Actions.DRILL) >= this.apLeft) {
+//            for (WsCoordinate coordinate : mapCache.getNearbyFields(unitNumber, ObjectType.ROCK)) {
+//                try {
+//                    if (getActionCost(Actions.DRILL) >= this.apLeft) {
+//                        doAction(Actions.DRILL, coordinate);
+//                    } else {
+//                        break;
+//                    }
+//                } catch (EndOfTurnException e) {
+//                    throw e;
+//                } catch (Exception e) {
+//                    continue;
+//                }
+//            }
+//        } else if (getActionCost(Actions.EXPLODE) >= this.apLeft) {
+//            for (WsCoordinate coordinate : mapCache.getNearbyFields(unitNumber, ObjectType.GRANITE)) {
+//                try {
+//                    if (getActionCost(Actions.EXPLODE) >= this.apLeft) {
+//                        doAction(Actions.EXPLODE, coordinate);
+//                    } else {
+//                        break;
+//                    }
+//                } catch (EndOfTurnException e) {
+//                    throw e;
+//                } catch (Exception e) {
+//                    continue;
+//                }
+//            }
+//        }
 
         while (this.apLeft > 0) {
             if (getActionCost(Actions.RADAR) > 0) {
                 List<WsCoordinate> radarableCoords = (List<WsCoordinate>) mapCache.getRadarableCoordinatesForUnit(unitNumber);
                 Collections.shuffle(radarableCoords);
-                doRadar(radarableCoords.subList(0, this.apLeft)); // we should check the field near our shuttle here.
+                doRadar(radarableCoords.subList(0, this.apLeft));
             } else {
                 doWatch();
             }
