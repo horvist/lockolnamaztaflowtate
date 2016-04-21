@@ -273,7 +273,7 @@ public class AI_1 implements IAI {
             cost = COST_GRANITE;
         }
 
-        if(PropertyHolder.isCollectIslands()) {
+        if(PropertyHolder.isCollectIslands() && PropertyHolder.getUnitsCollectIslands().contains(currentUnit)) {
             if (!(type == ObjectType.TUNNEL && team == FieldTeam.ALLY)) {
                 final int numOfOurFieldsNextToField = map.getNumOfOurFieldsNextToField(field);
                 if (numOfOurFieldsNextToField > 0) {
@@ -283,9 +283,14 @@ public class AI_1 implements IAI {
             }
         }
 
-        // fields closer to the shuttle are move valuable?
+        // fields closer to the shuttle are move valuable
         if (PropertyHolder.isFieldsWeighting() && PropertyHolder.getUnitsUseFieldWeight().contains(currentUnit)) {
             cost *= Math.sqrt(map.getFieldDistanceFromShuttle(field));
+        }
+
+        // fields farther to the shuttle are move valuable
+        if (PropertyHolder.isInversFieldsWeighting() && PropertyHolder.getUnitsUseInverzFieldWeight().contains(currentUnit)) {
+                cost /= Math.sqrt(map.getFieldDistanceFromShuttle(field));
         }
 
         return cost;

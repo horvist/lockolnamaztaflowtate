@@ -54,6 +54,18 @@ public final class PropertyHolder {
 
     private static boolean collectIslands;
 
+    private static final String UNITS_COLLECT_ISLANDS = "ai.unitsForCollectIslands";
+
+    private static Set<Integer> unitsCollectIslands;
+
+    private static final String FIELDS_INVERS_WEIGHTING = "ai.inversFieldWieghting";
+
+    private static boolean inversFieldsWeighting;
+
+    private static final String UNITS_USE_FIELD_INVERZ_WEIGHTING = "ai.unitsForInverzWeighting";
+
+    private static Set<Integer> unitsUseInverzFieldWeight;
+
     private PropertyHolder() {
     }
 
@@ -83,6 +95,12 @@ public final class PropertyHolder {
             unitsUseFieldWeight = getUnitsListFromProp(pro.getProperty(UNITS_USE_FIELD_WEIGHTING));
 
             collectIslands = Boolean.TRUE.toString().equalsIgnoreCase(pro.getProperty(COLLECT_ISLANDS));
+
+            unitsCollectIslands = getUnitsListFromProp(pro.getProperty(UNITS_COLLECT_ISLANDS));
+
+            inversFieldsWeighting = Boolean.TRUE.toString().equalsIgnoreCase(pro.getProperty(FIELDS_INVERS_WEIGHTING));
+
+            unitsUseInverzFieldWeight = getUnitsListFromProp(pro.getProperty(UNITS_USE_FIELD_INVERZ_WEIGHTING));
 
         } catch (Exception e) {
             // in the case, when exception occured by anything, application must not start
@@ -141,6 +159,18 @@ public final class PropertyHolder {
 
     public static boolean isCollectIslands() {
         return collectIslands;
+    }
+
+    public static boolean isInversFieldsWeighting() {
+        return inversFieldsWeighting;
+    }
+
+    public static Set<Integer> getUnitsUseInverzFieldWeight() {
+        return unitsUseInverzFieldWeight;
+    }
+
+    public static Set<Integer> getUnitsCollectIslands() {
+        return unitsCollectIslands;
     }
 }
 
