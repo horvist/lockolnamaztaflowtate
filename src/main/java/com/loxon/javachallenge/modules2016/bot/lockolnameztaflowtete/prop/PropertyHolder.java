@@ -66,6 +66,10 @@ public final class PropertyHolder {
 
     private static Set<Integer> unitsUseInversFieldWeight;
 
+    private static final String USE_DIRTY = "ai.useDirty";
+
+    private static boolean useDirty;
+
     private PropertyHolder() {
     }
 
@@ -101,6 +105,8 @@ public final class PropertyHolder {
             inversFieldsWeighting = Boolean.TRUE.toString().equalsIgnoreCase(pro.getProperty(FIELDS_INVERS_WEIGHTING));
 
             unitsUseInversFieldWeight = getUnitsListFromProp(pro.getProperty(UNITS_USE_FIELD_INVERS_WEIGHTING));
+
+            useDirty = Boolean.TRUE.toString().equalsIgnoreCase(pro.getProperty(USE_DIRTY));
 
         } catch (Exception e) {
             // in the case, when exception occured by anything, application must not start
@@ -171,6 +177,10 @@ public final class PropertyHolder {
 
     public static Set<Integer> getUnitsCollectIslands() {
         return unitsCollectIslands;
+    }
+
+    public static boolean isUseDirty() {
+        return useDirty;
     }
 }
 

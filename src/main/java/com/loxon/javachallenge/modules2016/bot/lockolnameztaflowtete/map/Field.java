@@ -3,6 +3,7 @@ package com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map;
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.ObjectType;
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.WsCoordinate;
 import com.loxon.javachallenge.modules2016.bot.enums.FieldTeam;
+import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.prop.PropertyHolder;
 
 /**
  * Class representing a field in a map.
@@ -140,6 +141,9 @@ public class Field {
     }
 
     public boolean isDirty() {
+        if(PropertyHolder.isUseDirty()){
+            return false;
+        }
         return dirty;   // FIXME returning always false for testing
     }
 }
