@@ -286,9 +286,6 @@ public abstract class AbstractLogicBot extends Bot implements IActionCostProvide
             throw new RunOutOfTimeException("DoWatch");
         }
 
-//        timeHelper.printTime();
-        System.out.println("");
-        System.out.println("Current unit number: " + this.unitNumber);
         WatchRequest watchRequest = FACTORY.createWatchRequest();
         watchRequest.setUnit(this.unitNumber);
         WatchResponse watchResponse = service.watch(watchRequest);
