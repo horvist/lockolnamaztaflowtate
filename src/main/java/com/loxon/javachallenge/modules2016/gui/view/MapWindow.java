@@ -107,6 +107,10 @@ public class MapWindow extends JWindow {
         switch (field.getObjectType()) {
             case TUNNEL:
                 if (FieldTeam.ALLY.equals(field.getTeam())) {
+                    WsCoordinate exit = Factory.createMap().getShuttleExit();
+                    if(exit.getY() == field.getY() && exit.getX() == field.getX()){
+                        return Picture.EXIT;
+                    }
                     return Picture.TUNNEL;
                 }
                 return Picture.ENEMY_TUNNEL;
@@ -225,7 +229,8 @@ public class MapWindow extends JWindow {
         // rock types
         OBSIDIAN("pictures/wall.png"),
         GRANITE("pictures/granite.png"),
-        CRYSTAL("pictures/crystal.png");
+        CRYSTAL("pictures/crystal.png"),
+        EXIT("pictures/tunnel_exit.png");
 
         private String picture;
 
