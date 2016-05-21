@@ -9,4 +9,6 @@ public interface IAI {
     public void lastMovementWasExecutedSuccessfully(int unit);
 
     Field getNextStepForUnit(int unit, IMapCache map, int round, IActionCostProvider actionCostProvider);
+
+    void clearBotPath(int unit);
 }

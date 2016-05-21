@@ -70,6 +70,10 @@ public final class PropertyHolder {
 
     private static boolean useDirty;
 
+    private static final String COUNT_SURROUNDING_ROCKS= "ai.countSurroundingRocks";
+
+    private static boolean countSurroundingRocks;
+
     private PropertyHolder() {
     }
 
@@ -107,6 +111,8 @@ public final class PropertyHolder {
             unitsUseInversFieldWeight = getUnitsListFromProp(pro.getProperty(UNITS_USE_FIELD_INVERS_WEIGHTING));
 
             useDirty = Boolean.TRUE.toString().equalsIgnoreCase(pro.getProperty(USE_DIRTY));
+
+            countSurroundingRocks = Boolean.TRUE.toString().equalsIgnoreCase(pro.getProperty(COUNT_SURROUNDING_ROCKS));
 
         } catch (Exception e) {
             // in the case, when exception occured by anything, application must not start
@@ -181,6 +187,10 @@ public final class PropertyHolder {
 
     public static boolean isUseDirty() {
         return useDirty;
+    }
+
+    public static boolean isCountSurroundingRocks() {
+        return countSurroundingRocks;
     }
 }
 

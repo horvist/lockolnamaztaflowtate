@@ -108,8 +108,6 @@ public class Field {
         if (getClass() != obj.getClass())
             return false;
         Field other = (Field) obj;
-        if (objectType != other.objectType)
-            return false;
         if (team != other.team)
             return false;
         if (x != other.x)
@@ -141,7 +139,7 @@ public class Field {
     }
 
     public boolean isDirty() {
-        if(PropertyHolder.isUseDirty()){
+        if(!PropertyHolder.isUseDirty()){
             return false;
         }
         return dirty;   // FIXME returning always false for testing
