@@ -269,7 +269,7 @@ public class AI_2 implements IAI {
 
         if(PropertyHolder.isCountSurroundingRocks()) {
             int surroundingRocks = map.getNearbyFields(currentUnit, ObjectType.ROCK).size();
-            reward += surroundingRocks * (REWARD_TUNNEL / COST_ROCK);
+            reward += (surroundingRocks * surroundingRocks) * (REWARD_TUNNEL / COST_ROCK);
         }
 
 //        // fields closer to the shuttle are move valuable

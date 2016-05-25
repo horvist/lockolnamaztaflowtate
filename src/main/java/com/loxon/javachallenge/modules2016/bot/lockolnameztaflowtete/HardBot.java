@@ -3,7 +3,6 @@ package com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Stack;
 
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.ObjectType;
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.WsCoordinate;
@@ -64,10 +63,13 @@ public class HardBot extends AbstractLogicBot {
             try {
                 doExplore();
 
-                drillNearbyFields();
-
                 final Field targetField = Factory.createAI().getNextStepForUnit(unitNumber, mapCache, turnsLeft, this);
                 final WsCoordinate targetCoord = targetField.getWsCoord();
+
+                if (hasUndrilledMovement.get(unitNumber)) {
+                    hasUndrilledMovement.put(unitNumber, false);
+                    drillNearbyFields(targetCoord);
+                }
 
                 doFieldHaHa(targetField, targetCoord);
 
@@ -85,31 +87,49 @@ public class HardBot extends AbstractLogicBot {
         }
     }
 
-    private void drillNearbyFields() throws EndOfTurnException {
+    private void drillNearbyFields(final WsCoordinate targetCoords) throws EndOfTurnException {
         if (turnsLeft < 75) {
             Collection<WsCoordinate> nearbyCoords = mapCache.getNearbyFields(unitNumber, ObjectType.ROCK);
             for (WsCoordinate coord : nearbyCoords) {
-                try {
-                    doAction(Actions.DRILL, coord);
-                } catch (RunOutOfActionPointsException | RunOutOfTimeException e) {
-                    throw e;
-                } catch (Exception e) {
-//                    e.printStackTrace();
-                    // do nothing if other exception occured, continue work
-                }
+//                if (coord.getX() != targetCoords.getX() && coord.getY() != targetCoords.getY()) {
+                    try {
+                        System.out.println("körbedrill");
+                        doAction(Actions.DRILL, coord);
+                    } catch (RunOutOfActionPointsException | RunOutOfTimeException e) {
+                        throw e;
+                    } catch (Exception e) {
+//                        e.printStackTrace();
+                        // do nothing if other exception occured, continue work
+                    }
+//                }
             }
+        }
+    }
+
+    private final static Map<Integer, Boolean> hasUndrilledMovement = new HashMap<Integer, Boolean>();
+
+    static {
+        for (int i = 0; i < 4; i++) {
+            hasUndrilledMovement.put(i, false);
         }
     }
 
     private void doFieldHaHa(Field targetField, WsCoordinate targetCoord) throws Exception {
         if (targetField.getObjectType() == ObjectType.GRANITE || (targetField.getObjectType() == ObjectType.TUNNEL && targetField.getTeam() == FieldTeam.ENEMY)) {
+            System.out.println("exploooooood");
             doAction(Actions.EXPLODE, targetCoord);
-            doAction(Actions.DRILL, targetCoord);
-        } else if (targetField.getObjectType() == ObjectType.ROCK) {
+        }
+
+        if (targetField.getObjectType() == ObjectType.ROCK) {
+            System.out.println("drilllllll");
             doAction(Actions.DRILL, targetCoord);
         }
 
-        doAction(Actions.MOVE, targetCoord);
+        if (targetField.getObjectType() == ObjectType.TUNNEL && targetField.getTeam() == FieldTeam.ALLY){
+            System.out.println("múúúúúv");
+            doAction(Actions.MOVE, targetCoord);
+            hasUndrilledMovement.put(unitNumber, true);
+        }
     }
 
 

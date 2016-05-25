@@ -143,12 +143,12 @@ public class AI_1 implements IAI {
             clearBotPaths();
         }
 
-        if (currentUnit != unit || movementsForUnit.isEmpty() || hasDirtyFieldInPath(unit)) {
+//        if (currentUnit != unit || movementsForUnit.isEmpty() || hasDirtyFieldInPath(unit)) {
             currentUnit = unit;
             foundSmallestCost = 999999;
             leafNodes.clear();
             movementsForUnit.clear();
-        }
+//        }
 
         if (map.isInStartPos(unit)) {
             movementsForUnit.push(map.getShuttleExitField());
