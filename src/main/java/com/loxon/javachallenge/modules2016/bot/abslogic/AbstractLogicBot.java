@@ -154,6 +154,7 @@ public abstract class AbstractLogicBot extends Bot implements IActionCostProvide
                 if (!success(commonResp)) {
                     throw new UnSuccessfulRequestException(actionType.name());
                 }
+                System.out.println("huhתתתתת");
                 this.mapCache.commitChanges();
 
                 handleCommonResponse(commonResp);
@@ -340,6 +341,7 @@ public abstract class AbstractLogicBot extends Bot implements IActionCostProvide
         MoveBuilderUnitResponse response = service.moveBuilderUnit(request);
         if (success(response.getResult())) {
             this.mapCache.moveUnit(unitNumber, targetCoordinate);
+            this.coords = targetCoordinate;
         } else {
             logToSystemOut(response, response.getClass());
         }

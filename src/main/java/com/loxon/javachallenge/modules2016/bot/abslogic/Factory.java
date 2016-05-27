@@ -1,6 +1,6 @@
 package com.loxon.javachallenge.modules2016.bot.abslogic;
 
-import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.ai.AI_2;
+import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.ai.AI_3;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.ai.IAI;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.IMapCache;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.MapCache;
@@ -29,6 +29,6 @@ public final class Factory {
     }
 
     public static IAI createAI() {
-        return AI_2.getInstance();
+        return AI_3.getInstance();
     }
 }

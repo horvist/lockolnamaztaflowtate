@@ -420,12 +420,17 @@ public class MapCache implements IMapCache {
 
     @Override
     public Collection<WsCoordinate> getNearbyFields(int unitNumber, ObjectType searchedType) {
-        final Set<WsCoordinate> coordinates = new HashSet<>();
         final Field unitField = getUnitField(unitNumber);
 
-        int ret = 0;
+        return getNearbyFields(unitField, searchedType);
+    }
+
+    @Override
+    public Collection<WsCoordinate> getNearbyFields(Field field, ObjectType searchedType) {
+        final Set<WsCoordinate> coordinates = new HashSet<>();
+
         for (WsDirection dir : WsDirection.values()) {
-            Field fieldForDir = getFieldForDirection(unitField, dir);
+            Field fieldForDir = getFieldForDirection(field, dir);
             if (fieldForDir != null && searchedType != null && searchedType == fieldForDir.getObjectType()) {
                 coordinates.add(fieldForDir.getWsCoord());
             }
@@ -433,6 +438,8 @@ public class MapCache implements IMapCache {
 
         return coordinates;
     }
+
+
 
     @Override
     public int getNumOfOurFieldsNextToField(Field field) {

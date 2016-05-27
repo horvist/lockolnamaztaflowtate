@@ -69,4 +69,6 @@ public interface IMapCache {
 	public void placeUnit(int unitNumber, WsCoordinate unitCoord);
 
     Collection<WsCoordinate> getNearbyFields(int unitNumber, ObjectType searchedType);
+
+    Collection<WsCoordinate> getNearbyFields(Field field, ObjectType searchedType);
 }

@@ -17,12 +17,11 @@ import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.IMapCac
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.prop.PropertyHolder;
 
 
-public class AI_2 implements IAI {
+public class AI_3 implements IAI {
 
     private static final int MAX_GRAPH_DEPTH = PropertyHolder.getGraphDept();
 
-    private static final double REWARD_TUNNEL = 100;
-    private static final double REWARD_OWN_TUNNEL = 0;
+    private static final boolean CHECK_FOUND_SMALLEST_COST = PropertyHolder.isCheckFoundSmallestCost();
 
     private static final double COST_REDUCE_RATIO = PropertyHolder.getReduceRatio();    // if a field is considered more valuable than the other fields with the same type, it's cost should be multiplied with this reducing ratio
     private static final double COST_INCREASE_RATIO = PropertyHolder.getIncRatio();    // increasing the cost of a field by this ratio if needed
@@ -35,9 +34,9 @@ public class AI_2 implements IAI {
 
     private static final int NUM_OF_UNITS = 4;
 
-    private static AI_2 instance;
+    private static AI_3 instance;
 
-    private AI_2() {
+    private AI_3() {
         for (int i = 0; i < NUM_OF_UNITS; i++) {
             smallestCostFields.put(i, new Stack<>());  // stacks for unit movements should not be null, initialized in private constructor
         }
@@ -45,9 +44,9 @@ public class AI_2 implements IAI {
 
     public static IAI getInstance() {
         if (instance == null) {
-            synchronized (AI_2.class) {
+            synchronized (AI_3.class) {
                 if (instance == null) {
-                    instance = new AI_2();
+                    instance = new AI_3();
 
                 }
             }
@@ -59,6 +58,7 @@ public class AI_2 implements IAI {
     private final Map<Double, Node> leafNodes = new HashMap<Double, Node>();      // NOTE: this is only used locally when a new graph is built, FIXME may use TreeSet?
     private final Map<Integer, Stack<Field>> smallestCostFields = new HashMap<Integer, Stack<Field>>(); // storing all the found smallest paths for bots, key is the bot's id
     //    private final Stack<Field> smallestCostFields = new Stack<Field>();
+    private double foundSmallestCost = 999999;  // NOTE: this too is only used locally when a new graph is built, no thread concurrency is assumed!!!
 
     private void clearBotPaths() {
         for (Stack<Field> path : smallestCostFields.values()) {
@@ -109,12 +109,12 @@ public class AI_2 implements IAI {
 
     private void fillActionCosts(IActionCostProvider actionCostProvider) {
         // inverse cost: cost of explode + drill + move
-        COST_GRANITE = actionCostProvider.getCostDrill() + actionCostProvider.getCostExplode() + actionCostProvider.getCostMove();
+        COST_GRANITE = (actionCostProvider.getCostDrill() + actionCostProvider.getCostExplode() + actionCostProvider.getCostMove()) * COST_INCREASE_RATIO;
 
         // cost of rock should be the smallest cost (it only needs to be drilled) - so bot will be forced to go for rocks when possible
         COST_ROCK = actionCostProvider.getCostDrill() < actionCostProvider.getCostExplode() ? actionCostProvider.getCostDrill() : actionCostProvider.getCostExplode();
 
-        COST_ENEMY_TUNNEL = COST_GRANITE;    // an enemy tunnel is considered to be the cost of a granite
+        COST_ENEMY_TUNNEL = COST_GRANITE * COST_REDUCE_RATIO;    // an enemy tunnel is considered to be slightly higher cost than drilling a rock
 
         COST_DEFAULT = COST_GRANITE * COST_REDUCE_RATIO;    // the default cost will be between the granite and rock
     }
@@ -139,15 +139,16 @@ public class AI_2 implements IAI {
         final Stack<Field> movementsForUnit = smallestCostFields.get(unit);
 //        final Stack<Field> movementsForUnit = smallestCostFields;
 
-//        if (round > 73) {
+        if (round > 73) {
             clearBotPaths();
-//        }
+        }
 
-        if (currentUnit != unit || movementsForUnit.isEmpty() || hasDirtyFieldInPath(unit)) {
+//        if (currentUnit != unit || movementsForUnit.isEmpty() || hasDirtyFieldInPath(unit)) {
             currentUnit = unit;
+            foundSmallestCost = 999999;
             leafNodes.clear();
             movementsForUnit.clear();
-        }
+//        }
 
         if (map.isInStartPos(unit)) {
             movementsForUnit.push(map.getShuttleExitField());
@@ -163,7 +164,7 @@ public class AI_2 implements IAI {
                 getPotentialStepsGraph(map.getUnitField(unit), null, MAX_GRAPH_DEPTH, map, 0, 0, true);
             }
 
-            Node node = leafNodes.get(Collections.max(leafNodes.keySet()));
+            Node node = leafNodes.get(Collections.min(leafNodes.keySet()));
 
             while (node != null) {
                 movementsForUnit.push(node.getField());
@@ -182,6 +183,9 @@ public class AI_2 implements IAI {
 
     @SuppressWarnings("unused")
     private Node getPotentialStepsGraph(Field current, Node parent, int maxDepth, IMapCache map, int currentDepth, double currentCost, boolean firstStep) {
+        if (CHECK_FOUND_SMALLEST_COST && currentCost >= foundSmallestCost) {
+            return null;
+        }
         if (current == null || (parent != null && isInCurrentSteps(current, parent)) || isFieldInAnotherUnitsSteps(currentUnit, current)) {
             return null;
         }
@@ -192,13 +196,16 @@ public class AI_2 implements IAI {
                 return null;
             }
 
-            currentCost += getRewardValue(current, map);
+            currentCost += getCost(current, map);
         }
 
         Node currentNode = new Node(current, parent);
 
 
         if (currentDepth + 1 > maxDepth) {
+            if (foundSmallestCost > currentCost) {
+                foundSmallestCost = currentCost;
+            }
             leafNodes.put(currentCost, currentNode);
             return currentNode;
         }
@@ -219,7 +226,11 @@ public class AI_2 implements IAI {
         if (!foundMorePotentialLeafNodes) {
             // if depth is smaller than the maximum depth, path should not be preferred more than a max_depth path
             // adding additional cost
-//            currentCost += (MAX_GRAPH_DEPTH - currentDepth) * COST_DEFAULT;
+            currentCost += (MAX_GRAPH_DEPTH - currentDepth) * COST_DEFAULT;
+
+            if (foundSmallestCost > currentCost) {
+                foundSmallestCost = currentCost;
+            }
             leafNodes.put(currentCost, currentNode);
         }
 
@@ -238,7 +249,7 @@ public class AI_2 implements IAI {
         return false;
     }
 
-    private double getRewardValue(Field field, IMapCache map) {
+    private double getCost(Field field, IMapCache map) {
 //      action costs:
 
 //      <drill>8</drill>   <drill>6</drill>
@@ -251,38 +262,46 @@ public class AI_2 implements IAI {
 
         final ObjectType type = field.getObjectType();
         final FieldTeam team = field.getTeam();
-        double reward = REWARD_TUNNEL / COST_DEFAULT;   // default value for uncovered fields
+        double cost = COST_DEFAULT;   // default value for uncovered fields
 
         if (type == ObjectType.TUNNEL) {
             if (team == FieldTeam.ALLY) {
-                reward = REWARD_OWN_TUNNEL / COST_OWN_TUNNEL;
-//            } else if (field.isWasOurs()) {
-//                cost = COST_ENEMY_TUNNEL * COST_REDUCE_RATIO;
+                cost = COST_OWN_TUNNEL;
+            } else if (field.isWasOurs()) {
+                cost = COST_ENEMY_TUNNEL * COST_REDUCE_RATIO;
             } else {
-                reward = REWARD_TUNNEL / COST_ENEMY_TUNNEL;
+                cost = COST_ENEMY_TUNNEL;
             }
         } else if (type == ObjectType.ROCK) {
-            reward = REWARD_TUNNEL / COST_ROCK;
+            cost = COST_ROCK;
         } else if (type == ObjectType.GRANITE) {
-            reward = REWARD_TUNNEL / COST_GRANITE;
+            cost = COST_GRANITE;
         }
 
-        if(PropertyHolder.isCountSurroundingRocks()) {
-            int surroundingRocks = map.getNearbyFields(currentUnit, ObjectType.ROCK).size();
-            reward += (surroundingRocks * surroundingRocks) * (REWARD_TUNNEL / COST_ROCK);
+        if(PropertyHolder.isCollectIslands() && PropertyHolder.getUnitsCollectIslands().contains(currentUnit)) {
+            if (!(type == ObjectType.TUNNEL && team == FieldTeam.ALLY)) {
+                final int numOfOurFieldsNextToField = map.getNumOfOurFieldsNextToField(field);
+                if (numOfOurFieldsNextToField > 0) {
+                    // if a field is next to our field, regardless of it's type it is considered to be more valuable
+                    cost *= (1 / (numOfOurFieldsNextToField * numOfOurFieldsNextToField));  // nééééégyzetesen
+                }
+            }
         }
 
-//        // fields closer to the shuttle are move valuable
-//        if (PropertyHolder.isFieldsWeighting() && PropertyHolder.getUnitsUseFieldWeight().contains(currentUnit)) {
-//            cost *= Math.sqrt(map.getFieldDistanceFromShuttle(field));
-//        }
-//
-//        // fields farther to the shuttle are move valuable
-//        if (PropertyHolder.isInversFieldsWeighting() && PropertyHolder.getUnitsUseInversFieldWeight().contains(currentUnit)) {
-//                cost /= Math.sqrt(map.getFieldDistanceFromShuttle(field));
-//        }
+        int surroundingRocks = map.getNearbyFields(field, ObjectType.ROCK).size();
+        cost -= surroundingRocks * COST_ROCK;
 
-        return reward;
+        // fields closer to the shuttle are move valuable
+        if (PropertyHolder.isFieldsWeighting() && PropertyHolder.getUnitsUseFieldWeight().contains(currentUnit)) {
+            cost *= Math.sqrt(map.getFieldDistanceFromShuttle(field));
+        }
+
+        // fields farther to the shuttle are move valuable
+        if (PropertyHolder.isInversFieldsWeighting() && PropertyHolder.getUnitsUseInversFieldWeight().contains(currentUnit)) {
+                cost /= Math.sqrt(map.getFieldDistanceFromShuttle(field));
+        }
+
+        return cost;
     }
 
 }

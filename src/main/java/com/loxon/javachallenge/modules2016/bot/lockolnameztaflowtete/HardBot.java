@@ -3,6 +3,7 @@ package com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Stack;
 
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.ObjectType;
 import com.loxon.javachallenge.modules2015.ws.centralcontrol.gen.WsCoordinate;
@@ -13,6 +14,7 @@ import com.loxon.javachallenge.modules2016.bot.enums.FieldTeam;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.EndOfTurnException;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.RunOutOfActionPointsException;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.RunOutOfTimeException;
+import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.StructureFieldException;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.exceptions.UnSuccessfulRequestException;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.map.Field;
 import com.loxon.javachallenge.modules2016.bot.lockolnameztaflowtete.prop.PropertyHolder;
@@ -51,8 +53,10 @@ public class HardBot extends AbstractLogicBot {
                         this.doSomething();
                     }
                 }
+            } catch (StructureFieldException fasz) {
+//                fasz.printStackTrace();
             } catch (Exception e) {
-                // e.printStackTrace();
+//                 e.printStackTrace();
             }
             Thread.sleep(TIME_INTERVAL);
         }
@@ -62,6 +66,7 @@ public class HardBot extends AbstractLogicBot {
         while (true) {
             try {
                 doExplore();
+                drillRemainingFields();
 
                 final Field targetField = Factory.createAI().getNextStepForUnit(unitNumber, mapCache, turnsLeft, this);
                 final WsCoordinate targetCoord = targetField.getWsCoord();
@@ -87,21 +92,53 @@ public class HardBot extends AbstractLogicBot {
         }
     }
 
+    private static Map<Integer, Stack<WsCoordinate>> cachedDrills = new HashMap<>();
+
+    static {
+        for (int i = 0; i < 4; i++) {
+            cachedDrills.put(i, new Stack<WsCoordinate>());
+        }
+    }
+
+    private void drillRemainingFields() throws Exception {
+        Stack<WsCoordinate> coords = cachedDrills.get(unitNumber);
+        while (!coords.isEmpty()) {
+            WsCoordinate targetCoord = coords.peek();
+            if (ObjectType.ROCK.equals(mapCache.getField(targetCoord).getObjectType())) {
+                try {
+                    System.out.println("körbedrill22222");
+                    doAction(Actions.DRILL, targetCoord);
+                    coords.pop();
+                } catch (RunOutOfActionPointsException | RunOutOfTimeException e) {
+                    throw e;
+                } catch (Exception e) {
+                    coords.pop();
+//                    e.printStackTrace();
+                    // do nothing if other exception occured, continue work
+                }
+            } else {
+                coords.pop();
+            }
+
+        }
+    }
+
     private void drillNearbyFields(final WsCoordinate targetCoords) throws EndOfTurnException {
         if (turnsLeft < 75) {
             Collection<WsCoordinate> nearbyCoords = mapCache.getNearbyFields(unitNumber, ObjectType.ROCK);
             for (WsCoordinate coord : nearbyCoords) {
-//                if (coord.getX() != targetCoords.getX() && coord.getY() != targetCoords.getY()) {
+                if (coord.getX() != targetCoords.getX() && coord.getY() != targetCoords.getY()) {
                     try {
                         System.out.println("körbedrill");
                         doAction(Actions.DRILL, coord);
                     } catch (RunOutOfActionPointsException | RunOutOfTimeException e) {
+                        cachedDrills.get(unitNumber).push(targetCoords);
                         throw e;
                     } catch (Exception e) {
 //                        e.printStackTrace();
                         // do nothing if other exception occured, continue work
                     }
-//                }
+                }
             }
         }
     }
